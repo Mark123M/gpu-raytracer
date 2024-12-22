@@ -13,14 +13,14 @@ inline float deg_to_rad(float deg) {
 	return deg * pi / 180.0;
 }
 
-static std::uniform_real_distribution<float> distribution(0.0, 1.0);
-static std::mt19937 generator;
-
 inline float randf() {
-	return distribution(generator);
+    // Returns a random real in [0,1).
+    return std::rand() / (RAND_MAX + 1.0);
 }
+
 inline float randf(float min, float max) {
-	return min + (max - min) * randf();
+    // Returns a random real in [min,max).
+    return min + (max - min) * randf();
 }
 
 #endif

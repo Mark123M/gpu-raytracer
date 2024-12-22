@@ -65,6 +65,14 @@ public:
 	float length_squared() const {
 		return dot(*this, *this);
 	}
+
+	static vec3 random() {
+		return vec3(randf(), randf(), randf());
+	}
+
+	static vec3 random(float min, float max) {
+		return vec3(randf(min, max), randf(min, max), randf(min, max));
+	}
 };
 
 using point3 = vec3;
@@ -99,13 +107,21 @@ inline vec3 rand_unit_vector() {
 	return {std::sin(phi) * std::sin(theta), std::cos(phi) , std::sin(phi) * std::cos(theta)};
 }
 
-inline vec3 rand_hemisphere_vector(const vec3& normal) {
-	vec3 unit = rand_unit_vector();
-	if (dot(unit, normal) > 0) {
-		return unit;
-	} else {
-		return -unit;
+inline vec3 random_unit_vector() {
+	while (true) {
+		auto p = vec3::random(-1, 1);
+		auto lensq = p.length_squared();
+		if (1e-160 < lensq && lensq <= 1)
+			return p / sqrt(lensq);
 	}
+}
+
+inline vec3 random_on_hemisphere(const vec3& normal) {
+	vec3 on_unit_sphere = random_unit_vector();
+	if (dot(on_unit_sphere, normal) > 0.0) // In the same hemisphere as the normal
+		return on_unit_sphere;
+	else
+		return -on_unit_sphere;
 }
 
 inline float dot(const vec3& a, const vec3& b) {

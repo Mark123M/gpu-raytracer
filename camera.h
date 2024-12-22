@@ -63,8 +63,8 @@ class camera {
     color ray_color(const ray& r, const entity& world) {
         hit_result res;
         if (world.hit(r, interval(0, infinity), res)) {
-            vec3 dir = rand_hemisphere_vector(res.normal);
-            return 0.5 * ray_color(ray(res.p, dir), world); // Transform -1 < x, y, z < 1 to 0 < x, y, z < 1
+            vec3 direction = random_on_hemisphere(res.normal);
+            return 0.5 * ray_color(ray(res.p, direction), world);
         }
 
         vec3 unit = unit_vector(r.dir);
