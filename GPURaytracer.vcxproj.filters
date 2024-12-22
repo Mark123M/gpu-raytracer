@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CudaCompile Include="kernel.cu" />
+    <CudaCompile Include="main.cu" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="math">
+      <UniqueIdentifier>{ea5179c0-0a4d-4b54-9edd-cb882bb370ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="util">
+      <UniqueIdentifier>{3b4e6742-cbbe-41c6-81e5-3c8855b9b012}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="math\vec3.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="util\color.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="math\ray.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="sphere.h" />
+    <ClInclude Include="math\interval.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="math\util.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="entity.h" />
+    <ClCompile Include="entitylist.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".gitignore" />
+  </ItemGroup>
+</Project>
