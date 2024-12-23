@@ -7,8 +7,9 @@
 class sphere : public entity {
 	point3 center;
 	float radius;
+    std::shared_ptr<material> mat;
 public:
-	sphere(const point3& center, float radius): center{center}, radius{radius} {}
+    sphere(const point3& center, float radius, std::shared_ptr<material> mat) : center{ center }, radius{ radius }, mat{ mat } {}
 
 	bool hit(const ray& r, interval ray_t, hit_result& res) const override {
         vec3 originToCenter = center - r.origin;
@@ -33,6 +34,7 @@ public:
         res.p = r.at(root);
         vec3 outward_normal = (res.p - center) / radius;
         res.set_face_normal(r, outward_normal);
+        res.mat = mat;
 
         return true;
 	}

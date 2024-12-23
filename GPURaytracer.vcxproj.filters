@@ -30,6 +30,7 @@
       <Filter>math</Filter>
     </ClInclude>
     <ClInclude Include="camera.h" />
+    <ClInclude Include="material.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="entity.h" />

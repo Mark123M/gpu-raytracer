@@ -3,6 +3,7 @@
 
 #include "entity.h"
 #include "util/color.h"
+#include "material.h"
 
 inline std::tm localtime_xp(std::time_t timer) {
     std::tm bt{};
@@ -73,8 +74,13 @@ class camera {
         hit_result res;
 
         if (world.hit(r, interval(0.0001, infinity), res)) {
-            vec3 dir = res.normal + rand_unit_vector();
-            return 0.5 * ray_color(ray(res.p, dir), world, depth + 1); // Transform -1 < x, y, z < 1 to 0 < x, y, z < 1
+            ray scattered;
+            color attenuation;
+            if (res.mat->scatter(r, res, attenuation, scattered)) {
+                return attenuation * ray_color(scattered, world, depth + 1);
+            }
+
+            return color(0, 0, 0); // absorbed
         }
 
         vec3 unit = unit_vector(r.dir);

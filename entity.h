@@ -4,9 +4,12 @@
 #include "math/ray.h"
 #include "math/interval.h"
 
+class material; // For circular imports
+
 struct hit_result {
 	point3 p;
 	vec3 normal;
+	std::shared_ptr<material> mat;
 	float t;
 	bool front_face;
 
