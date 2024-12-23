@@ -52,6 +52,10 @@ class camera {
 
         std::clog << "image width: " << image_width << " image height: " << image_height << " viewport width: " << viewport_width << " viewport height: " << viewport_height << std::endl;
         std::clog << "viewport top left: " << viewport_top_left << " pixel_center00: " << pixel_center00 << " pixel size: " << pixel_x << " " << pixel_y << std::endl;
+        /*for (int i = 0; i < 100; i++) {
+            vec3 unit = rand_unit_vector();
+            std::cout << unit << " " << unit.length_squared() << std::endl;
+        } */
 	}
 	
     ray get_ray(int i, int j) const {
@@ -60,11 +64,17 @@ class camera {
         return ray{ center, sample - center };
     }
 
-    color ray_color(const ray& r, const entity& world) {
+    color ray_color(const ray& r, const entity& world, int depth) {
+        // Max recursion depth reached
+        if (depth >= max_depth) {
+            return color(0, 0, 0);
+        }
+
         hit_result res;
-        if (world.hit(r, interval(0, infinity), res)) {
-            vec3 dir = rand_hemisphere_vector(res.normal);
-            return 0.5 * ray_color(ray(res.p, dir), world); // Transform -1 < x, y, z < 1 to 0 < x, y, z < 1
+
+        if (world.hit(r, interval(0.0001, infinity), res)) {
+            vec3 dir = res.normal + rand_unit_vector();
+            return 0.5 * ray_color(ray(res.p, dir), world, depth + 1); // Transform -1 < x, y, z < 1 to 0 < x, y, z < 1
         }
 
         vec3 unit = unit_vector(r.dir);
@@ -75,6 +85,7 @@ public:
     float aspect_ratio = 1.0;
     int image_height = 100;
     int pixel_samples = 10; // # of random samples for pixel (can be parallel reduced)
+    int max_depth = 10; // Max # of ray bounces per ray
 
 	void render(const entity& world) {
         initialize();
@@ -91,7 +102,7 @@ public:
                 // Maybe sample only when near the edge?
                 for (int s = 0; s < pixel_samples; s++) {
                     ray r = get_ray(i, j);
-                    pixel_col += ray_color(r, world);
+                    pixel_col += ray_color(r, world, 0);
                 }
                 write_color(file, pixel_col / pixel_samples);
             }
