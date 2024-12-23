@@ -24,6 +24,8 @@ public:
 
 	vec3 operator-(const vec3& v) const { return { x - v.x, y - v.y, z - v.z }; }
 
+	vec3 operator*(const vec3& v) const { return { x * v.x, y * v.y, z * v.z }; }
+
 	vec3 operator/(float k) const {
 		assert(k != 0);
 		return (1 / k) * (*this);
@@ -64,6 +66,11 @@ public:
 
 	float length_squared() const {
 		return dot(*this, *this);
+	}
+
+	bool near_zero() const {
+		float t = 1e-8;
+		return std::fabs(x) < t && std::fabs(y) < t && std::fabs(z) < t;
 	}
 };
 
@@ -106,6 +113,10 @@ inline vec3 rand_hemisphere_vector(const vec3& normal) {
 	} else {
 		return -unit;
 	}
+}
+
+inline vec3 reflect(const vec3& v, const vec3& n) {
+	return v - 2 * dot(v, n) * n;
 }
 
 inline float dot(const vec3& a, const vec3& b) {

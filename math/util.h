@@ -9,7 +9,7 @@ const float infinity = std::numeric_limits<float>::infinity();
 const float pi = 3.1415926535897932385;
 
 // Utility functions
-inline float deg_to_rad(float deg) {
+inline float deg2rad(float deg) {
 	return deg * pi / 180.0;
 }
 
