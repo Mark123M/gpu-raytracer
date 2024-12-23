@@ -28,27 +28,33 @@ inline std::string time_stamp(const std::string& fmt = "%F__%H-%M-%S") {
 
 class camera {
     int image_width;
-    point3 center;
     point3 pixel_center00;
     vec3 pixel_x;
     vec3 pixel_y;
+    vec3 x, y, z; // Local transform of the camera
 
 	void initialize() {
         image_width = (int)(image_height * aspect_ratio);
         image_width = (image_width < 1) ? 1 : image_width; // Clamping
 
-        center = point3(0, 0, 0);
+        
 
-        float focal_length = 1.0;
-        float viewport_height = 2.0;
+        float focal_length = (origin - lookat).length();
+        float theta = deg2rad(vfov);
+        float h = std::tan(theta / 2) * focal_length;
+        float viewport_height = 2 * h;
         float viewport_width = viewport_height * (float(image_width) / image_height); // Adjusted ratio
 
-        vec3 viewport_x = vec3(viewport_width, 0, 0);
-        vec3 viewport_y = vec3(0, -viewport_height, 0);
+        z = unit_vector(origin - lookat);
+        x = unit_vector(cross(vup, z));
+        y = cross(z, x);
+
+        vec3 viewport_x = viewport_width * x;
+        vec3 viewport_y = viewport_height * -y;
         pixel_x = viewport_x / image_width;
         pixel_y = viewport_y / image_height;
 
-        point3 viewport_top_left = center - vec3(0, 0, focal_length) - viewport_x / 2 - viewport_y / 2;
+        point3 viewport_top_left = origin - focal_length * z - viewport_x / 2 - viewport_y / 2;
         pixel_center00 = viewport_top_left + (pixel_x + pixel_y) / 2;
 
         std::clog << "image width: " << image_width << " image height: " << image_height << " viewport width: " << viewport_width << " viewport height: " << viewport_height << std::endl;
@@ -62,7 +68,7 @@ class camera {
     ray get_ray(int i, int j) const {
         vec3 offset{ randf() - 0.5f, randf() - 0.5f, 0 }; // Random point from center of unit square -0.5 <= x, y < 0.5
         point3 sample = pixel_center00 + ((i + offset.y) * pixel_y) + ((j + offset.x) * pixel_x);
-        return ray{ center, sample - center };
+        return ray{ origin, sample - origin };
     }
 
     color ray_color(const ray& r, const entity& world, int depth) {
@@ -92,6 +98,11 @@ public:
     int image_height = 100;
     int pixel_samples = 10; // # of random samples for pixel (can be parallel reduced)
     int max_depth = 10; // Max # of ray bounces per ray
+
+    float vfov = 90; // Vertical fov in degrees
+    point3 origin = point3(0, 0, 0);
+    point3 lookat = point3(0, 0, -1); // Point camera is looking at
+    vec3 vup = vec3(0, 1, 0); // Up vector of camera
 
 	void render(const entity& world) {
         initialize();

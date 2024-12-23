@@ -89,6 +89,11 @@ inline vec3 unit_vector(const vec3& v) {
 	return v / v.length();
 }
 
+inline vec3 rand_unit_vector_disk() {
+	vec3 rand = vec3{ randf(-1, 1), randf(-1, 1), 0.0 };
+	return unit_vector(rand);
+}
+
 inline vec3 rand_unit_vector2() {
 	while (true) {
 		vec3 p = vec3{randf(-1, 1), randf(-1, 1), randf(-1, 1)};
@@ -101,9 +106,8 @@ inline vec3 rand_unit_vector2() {
 
 // Random vector in unit sphere
 inline vec3 rand_unit_vector() {
-	float phi = randf(0, pi);
-	float theta = randf(0, 2 * pi);
-	return {std::sin(phi) * std::sin(theta), std::cos(phi) , std::sin(phi) * std::cos(theta)};
+	vec3 rand = vec3{ randf(-1, 1), randf(-1, 1), randf(-1, 1) };
+	return unit_vector(rand);
 }
 
 inline vec3 rand_hemisphere_vector(const vec3& normal) {
@@ -117,6 +121,13 @@ inline vec3 rand_hemisphere_vector(const vec3& normal) {
 
 inline vec3 reflect(const vec3& v, const vec3& n) {
 	return v - 2 * dot(v, n) * n;
+}
+
+inline vec3 refract(const vec3& v, const vec3& n, float eta) {
+	float cos_theta = std::fmin(dot(-v, n), 1.0);
+	vec3 perp = eta * (v + cos_theta * n);
+	vec3 parallel = -std::sqrt(std::fabs(1.0 - perp.length_squared())) * n;
+	return perp + parallel;
 }
 
 inline float dot(const vec3& a, const vec3& b) {
