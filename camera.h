@@ -39,9 +39,9 @@ class camera {
 
         center = point3(0, 0, 0);
 
-        float focal_length = 1.0;
-        float viewport_height = 2.0;
-        float viewport_width = viewport_height * (float(image_width) / image_height); // Adjusted ratio
+        double focal_length = 1.0;
+        double viewport_height = 2.0;
+        double viewport_width = viewport_height * (double(image_width) / image_height); // Adjusted ratio
 
         vec3 viewport_x = vec3(viewport_width, 0, 0);
         vec3 viewport_y = vec3(0, -viewport_height, 0);
@@ -84,11 +84,11 @@ class camera {
         }
 
         vec3 unit = unit_vector(r.dir);
-        float a = 0.5 * (unit.y + 1.0); // Transform -1 < y < 1 to 0 < a < 1
+        double a = 0.5 * (unit.y + 1.0); // Transform -1 < y < 1 to 0 < a < 1
         return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0);
     }
 public:
-    float aspect_ratio = 1.0;
+    double aspect_ratio = 1.0;
     int image_height = 100;
     int pixel_samples = 10; // # of random samples for pixel (can be parallel reduced)
     int max_depth = 10; // Max # of ray bounces per ray

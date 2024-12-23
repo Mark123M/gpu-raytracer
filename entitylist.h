@@ -17,7 +17,7 @@ public:
 	// Gets the first object the ray hits
 	bool hit(const ray& r, interval ray_t, hit_result& res) const override {
 		hit_result temp_res;
-		float tmin_hit = ray_t.max;
+		double tmin_hit = ray_t.max;
 		bool hit = false;
 
 		// creating intervals might be sus...

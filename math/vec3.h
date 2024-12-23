@@ -7,16 +7,16 @@
 #include "util.h"
 
 class vec3;
-inline vec3 operator*(float k, const vec3& v);
-inline float dot(const vec3& a, const vec3& b);
+inline vec3 operator*(double k, const vec3& v);
+inline double dot(const vec3& a, const vec3& b);
 
 class vec3 {
 public:
-	float x, y, z;
+	double x, y, z;
 
 	vec3(): x{0}, y{0}, z{0} {}
 
-	vec3(float x0, float y0, float z0): x{x0}, y{y0}, z{z0} {}
+	vec3(double x0, double y0, double z0): x{x0}, y{y0}, z{z0} {}
 
 	vec3 operator-() const { return { -x, -y, -z }; }
 
@@ -26,7 +26,7 @@ public:
 
 	vec3 operator*(const vec3& v) const { return { x * v.x, y * v.y, z * v.z }; }
 
-	vec3 operator/(float k) const {
+	vec3 operator/(double k) const {
 		assert(k != 0);
 		return (1 / k) * (*this);
 	}
@@ -45,14 +45,14 @@ public:
 		return *this;
 	}
 
-	vec3& operator*=(float k) {
+	vec3& operator*=(double k) {
 		x *= k;
 		y *= k;
 		z *= k;
 		return *this;
 	}
 
-	vec3& operator/=(float k) {
+	vec3& operator/=(double k) {
 		assert(k != 0);
 		x /= k;
 		y /= k;
@@ -60,25 +60,25 @@ public:
 		return *this;
 	}
 
-	float length() const {
+	double length() const {
 		return std::sqrt(dot(*this, *this));
 	}
 
-	float length_squared() const {
+	double length_squared() const {
 		return dot(*this, *this);
 	}
 
 	bool near_zero() const {
-		float t = 1e-8;
+		double t = 1e-8;
 		return std::fabs(x) < t && std::fabs(y) < t && std::fabs(z) < t;
 	}
 };
 
 using point3 = vec3;
 
-inline vec3 operator*(float k, const vec3& v) { return {k * v.x, k * v.y, k * v.z}; }
+inline vec3 operator*(double k, const vec3& v) { return {k * v.x, k * v.y, k * v.z}; }
 
-inline vec3 operator*(const vec3& v, float k) { return k * v; }
+inline vec3 operator*(const vec3& v, double k) { return k * v; }
 
 inline std::ostream& operator<<(std::ostream& out, const vec3& v) {
 	out << v.x << " " << v.y << " " << v.z;
@@ -92,7 +92,7 @@ inline vec3 unit_vector(const vec3& v) {
 inline vec3 rand_unit_vector2() {
 	while (true) {
 		vec3 p = vec3{randf(-1, 1), randf(-1, 1), randf(-1, 1)};
-		float lensq = p.length_squared();
+		double lensq = p.length_squared();
 		if (1e-80 < lensq && lensq <= 1) {
 			return p / sqrt(lensq);
 		}
@@ -101,9 +101,12 @@ inline vec3 rand_unit_vector2() {
 
 // Random vector in unit sphere
 inline vec3 rand_unit_vector() {
-	float phi = randf(0, pi);
-	float theta = randf(0, 2 * pi);
+	/*double phi = randf(0, pi);
+	double theta = randf(0, 2 * pi);
 	return {std::sin(phi) * std::sin(theta), std::cos(phi) , std::sin(phi) * std::cos(theta)};
+	vec3 rand = vec3{ randf(-1, 1), randf(-1, 1), randf(-1, 1) };
+	return unit_vector(rand); */
+	return rand_unit_vector2();
 }
 
 inline vec3 rand_hemisphere_vector(const vec3& normal) {
@@ -119,7 +122,7 @@ inline vec3 reflect(const vec3& v, const vec3& n) {
 	return v - 2 * dot(v, n) * n;
 }
 
-inline float dot(const vec3& a, const vec3& b) {
+inline double dot(const vec3& a, const vec3& b) {
 	return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 

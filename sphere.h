@@ -6,23 +6,23 @@
 
 class sphere : public entity {
 	point3 center;
-	float radius;
+	double radius;
     std::shared_ptr<material> mat;
 public:
-    sphere(const point3& center, float radius, std::shared_ptr<material> mat) : center{ center }, radius{ radius }, mat{ mat } {}
+    sphere(const point3& center, double radius, std::shared_ptr<material> mat) : center{ center }, radius{ radius }, mat{ mat } {}
 
 	bool hit(const ray& r, interval ray_t, hit_result& res) const override {
         vec3 originToCenter = center - r.origin;
-        float a = r.dir.length_squared();
-        float h = dot(r.dir, originToCenter);
-        float c = originToCenter.length_squared() - radius * radius;
+        double a = r.dir.length_squared();
+        double h = dot(r.dir, originToCenter);
+        double c = originToCenter.length_squared() - radius * radius;
 
-        float discriminant = h * h - a * c;
+        double discriminant = h * h - a * c;
         if (discriminant < 0) {
             return false;
         }
 
-        float root = (h - std::sqrt(discriminant)) / a;
+        double root = (h - std::sqrt(discriminant)) / a;
         if (!ray_t.contains_ex(root)) {
             root = (h + std::sqrt(discriminant)) / a;
             if (!ray_t.contains_ex(root)) {

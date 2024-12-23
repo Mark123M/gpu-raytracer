@@ -33,9 +33,9 @@ public:
 
 class metal : public material {
 	color albedo;
-	float fuzz;
+	double fuzz;
 public:
-	metal(const color& albedo, float fuzz) : albedo{ albedo }, fuzz{ fuzz < 1 ? fuzz : 1 } {}
+	metal(const color& albedo, double fuzz) : albedo{ albedo }, fuzz{ fuzz < 1 ? fuzz : 1 } {}
 
 	bool scatter(const ray& in, const hit_result& res, color& attenuation, ray& scattered) const override {
 		vec3 reflected = reflect(in.dir, res.normal);

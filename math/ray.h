@@ -11,7 +11,7 @@ public:
 	ray() {}
 	ray(const point3& origin, const vec3& direction): origin{origin}, dir{direction} {}
 
-	point3 at(float t) const {
+	point3 at(double t) const {
 		return origin + t * dir;
 	}
 };
