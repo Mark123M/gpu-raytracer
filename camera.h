@@ -79,19 +79,21 @@ class camera {
 
         hit_result res;
 
-        if (world.hit(r, interval(0.001, infinity), res)) {
-            ray scattered;
-            color attenuation;
-            if (res.mat->scatter(r, res, attenuation, scattered)) {
-                return attenuation * ray_color(scattered, world, depth + 1);
-            }
-
-            return color(0, 0, 0); // absorbed
+        if (!world.hit(r, interval(0.001, infinity), res)) {
+            return color{ 0, 0, 0 };
         }
 
-        vec3 unit = unit_vector(r.dir);
-        float a = 0.5 * (unit.y + 1.0); // Transform -1 < y < 1 to 0 < a < 1
-        return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0);
+        ray scattered;
+        color attenuation;
+        color emission_color = res.mat->emitted(res.u, res.v, res.p);
+
+        if (!res.mat->scatter(r, res, attenuation, scattered)) {
+            return emission_color;
+        }
+
+        color scatter_color = attenuation * ray_color(scattered, world, depth + 1);
+
+        return emission_color + scatter_color;
     }
 public:
     float aspect_ratio = 1.0;

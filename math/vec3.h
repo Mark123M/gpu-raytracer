@@ -70,6 +70,16 @@ public:
 		return z;
 	}
 
+	void set(int idx, float val) {
+		if (idx == 0) {
+			x = val;
+		} else if (idx == 1) {
+			y = val;
+		} else if (idx == 2) {
+			z = val;
+		}
+	}
+
 	float length() const {
 		return std::sqrt(dot(*this, *this));
 	}
@@ -116,8 +126,9 @@ inline vec3 rand_unit_vector2() {
 
 // Random vector in unit sphere
 inline vec3 rand_unit_vector() {
-	vec3 rand = vec3{ randf(-1, 1), randf(-1, 1), randf(-1, 1) };
-	return unit_vector(rand);
+	//vec3 rand = vec3{ randf(-1, 1), randf(-1, 1), randf(-1, 1) };
+	//return unit_vector(rand);
+	return rand_unit_vector2();
 }
 
 inline vec3 rand_hemisphere_vector(const vec3& normal) {

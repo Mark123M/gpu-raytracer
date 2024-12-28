@@ -124,8 +124,75 @@ void quads() {
     
 }
 
+void cornell_box() {
+    entity_list world;
+
+    auto red = std::make_shared<lambertian>(color(.65, .05, .05));
+    auto white = std::make_shared<lambertian>(color(.73, .73, .73));
+    auto green = std::make_shared<lambertian>(color(.12, .45, .15));
+    auto light = std::make_shared<area_light> (color(15, 15, 15));
+
+    world.add(std::make_shared<quad>(point3(555, 0, 0), vec3(0, 555, 0), vec3(0, 0, 555), green));
+    world.add(std::make_shared<quad>(point3(0, 0, 0), vec3(0, 555, 0), vec3(0, 0, 555), red));
+    world.add(std::make_shared<quad>(point3(343, 554, 332), vec3(-130, 0, 0), vec3(0, 0, -105), light));
+    world.add(std::make_shared<quad>(point3(0, 0, 0), vec3(555, 0, 0), vec3(0, 0, 555), white));
+    world.add(std::make_shared<quad>(point3(555, 555, 555), vec3(-555, 0, 0), vec3(0, 0, -555), white));
+    world.add(std::make_shared<quad>(point3(0, 0, 555), vec3(555, 0, 0), vec3(0, 555, 0), white));
+
+    std::shared_ptr<entity> box1 = box(point3(0, 0, 0), point3(165, 330, 165), white);
+    box1 = std:: make_shared<rotate_y>(box1, 15);
+    box1 = std::make_shared<translate>(box1, vec3(265, 0, 295));
+    world.add(box1);
+
+    std::shared_ptr<entity> box2 = box(point3(0, 0, 0), point3(165, 165, 165), white);
+    box2 = std::make_shared<rotate_y>(box2, -18);
+    box2 = std::make_shared<translate>(box2, vec3(130, 0, 65));
+    world.add(box2);
+
+    camera cam;
+
+    cam.aspect_ratio = 1.0;
+    cam.image_height = 600;
+    cam.pixel_samples = 200;
+    cam.max_depth = 50;
+
+    cam.vfov = 40;
+    cam.origin = point3(278, 278, -800);
+    cam.lookat = point3(278, 278, 0);
+    cam.vup = vec3(0, 1, 0);
+
+    cam.render(world);
+}
+
+void light() {
+    entity_list world;
+
+    auto light_mat = std::make_shared<area_light>(color{5.0, 5.0, 5.0});
+    auto sphere_mat = std::make_shared<lambertian>(color{ 0.96078, 0.67059, 0.72549 });
+    auto ground_mat = std::make_shared<lambertian>(color{ 0.35686, 0.81176, 0.98431 });
+    world.add(std::make_shared<sphere>(point3(0, -1000, 0), 1000, ground_mat));
+    world.add(std::make_shared<sphere>(point3(0, 2, 0), 2, sphere_mat));
+    world.add(std::make_shared<quad>(point3(3, 1, -2), vec3(2, 0, 0), vec3(0, 2, 0), light_mat));
+
+    camera cam;
+
+    cam.aspect_ratio = 16.0 / 9.0;
+    cam.image_height = 400;
+    cam.pixel_samples = 100;
+    cam.max_depth = 50;
+
+    cam.vfov = 20;
+    cam.origin = point3(26, 3, 6);
+    cam.lookat = point3(0, 2, 0);
+    cam.vup = vec3(0, 1, 0);
+
+    cam.render(world);
+}
+
 int main() {
     //spheres();
-    quads();
+    //quads();
+    //light();
+    cornell_box();
     return 0;
 }

@@ -84,6 +84,10 @@ public:
 			return y.size() > z.size() ? 1 : 2;
 		}
 	}
+
+	aabb operator+(const vec3& offset) {
+		return aabb(x + offset.x, y + offset.y, z + offset.z);
+	}
 };
 
 #endif
