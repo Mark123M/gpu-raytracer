@@ -4,14 +4,21 @@
 #include <memory>
 #include <vector>
 #include "entity.h"
+#include "aabb.h"
 
 class entity_list : public entity {
+	aabb bbox;
 public:
 	std::vector<std::shared_ptr<entity>> objects; // random index access
 
 	entity_list() {}
-	entity_list(std::shared_ptr<entity> object) { objects.push_back(object); }
+	entity_list(std::shared_ptr<entity> object) { add(object); }
 	
+	void add(std::shared_ptr<entity> object) {
+		objects.push_back(object);
+		bbox = aabb(bbox, object->get_aabb());
+	}
+
 	void clear() { objects.clear(); }
 
 	// Gets the first object the ray hits
@@ -31,6 +38,8 @@ public:
 
 		return hit;
 	}
+
+	aabb get_aabb() const override { return bbox; }
 };
 
 #endif

@@ -81,13 +81,17 @@
     <CudaCompile Include="main.cu" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="aabb.h" />
+    <ClInclude Include="bvh.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="material.h" />
     <ClInclude Include="math\interval.h" />
     <ClInclude Include="math\ray.h" />
     <ClInclude Include="math\util.h" />
     <ClInclude Include="math\vec3.h" />
+    <ClInclude Include="quad.h" />
     <ClInclude Include="sphere.h" />
+    <ClInclude Include="triangle.h" />
     <ClInclude Include="util\color.h" />
   </ItemGroup>
   <ItemGroup>

@@ -79,7 +79,7 @@ class camera {
 
         hit_result res;
 
-        if (world.hit(r, interval(0.0001, infinity), res)) {
+        if (world.hit(r, interval(0.001, infinity), res)) {
             ray scattered;
             color attenuation;
             if (res.mat->scatter(r, res, attenuation, scattered)) {

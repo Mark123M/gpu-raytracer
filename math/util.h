@@ -22,6 +22,9 @@ inline float randf() {
 inline float randf(float min, float max) {
 	return min + (max - min) * randf();
 }
+inline int randi(int min, int max) {
+	return (int)randf(min, max);
+}
 
 #endif
 

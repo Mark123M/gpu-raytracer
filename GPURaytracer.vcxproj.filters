@@ -31,6 +31,10 @@
     </ClInclude>
     <ClInclude Include="camera.h" />
     <ClInclude Include="material.h" />
+    <ClInclude Include="aabb.h" />
+    <ClInclude Include="bvh.h" />
+    <ClInclude Include="triangle.h" />
+    <ClInclude Include="quad.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="entity.h" />

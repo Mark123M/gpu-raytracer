@@ -11,6 +11,11 @@ public:
 
 	interval(float min, float max): min{min}, max{max} {}
 
+	interval(const interval& a, const interval& b) {
+		min = a.min <= b.min ? a.min : b.min;
+		max = a.max >= b.max ? a.max : b.max;
+	}
+
 	float size() const {
 		return max - min; // inclusive?
 	}
@@ -31,6 +36,11 @@ public:
 		}
 
 		return x;
+	}
+
+	interval expand(double delta) const {
+		float padding = delta / 2;
+		return interval(min - padding, max + padding);
 	}
 };
 

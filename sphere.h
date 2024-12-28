@@ -8,8 +8,12 @@ class sphere : public entity {
 	point3 center;
 	float radius;
     std::shared_ptr<material> mat;
+    aabb bbox;
 public:
-    sphere(const point3& center, float radius, std::shared_ptr<material> mat) : center{ center }, radius{ radius }, mat{ mat } {}
+    sphere(const point3& center, float radius, std::shared_ptr<material> mat) : center{ center }, radius{ radius > 0 ? radius : 0 }, mat{ mat } {
+        vec3 offset = vec3(radius, radius, radius);
+        bbox = aabb(center - offset, center + offset);
+    }
 
 	bool hit(const ray& r, interval ray_t, hit_result& res) const override {
         vec3 originToCenter = center - r.origin;
@@ -38,6 +42,8 @@ public:
 
         return true;
 	}
+
+    aabb get_aabb() const override { return bbox; }
 };
 
 #endif

@@ -60,6 +60,16 @@ public:
 		return *this;
 	}
 
+	float get(int idx) const {
+		if (idx == 0) {
+			return x;
+		} else if (idx == 1) {
+			return y;
+		}
+
+		return z;
+	}
+
 	float length() const {
 		return std::sqrt(dot(*this, *this));
 	}

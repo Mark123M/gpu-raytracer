@@ -35,3 +35,4 @@ build
 x64
 .vs
 refs
+enc_temp_folder

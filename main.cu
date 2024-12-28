@@ -12,15 +12,17 @@
 #include "entitylist.h"
 #include "material.h"
 #include "sphere.h"
+#include "quad.h"
 #include "camera.h"
+#include "bvh.h"
 
 __global__ void hello() {
     printf("Hello from block: %u, thread: %u\n", blockIdx.x, threadIdx.x);
 }
 
-int main() {
+void spheres() {
     entity_list world;
-    
+
     /*auto material_ground = std::make_shared<lambertian>(color(0.8, 0.8, 0.0));
     auto material_center = std::make_shared<lambertian>(color(0.1, 0.2, 0.5));
     auto material_left = std::make_shared<dielectric>(1.50); // Air bubble in water //std::make_shared<metal>(color(0.8, 0.8, 0.8), 0.3);
@@ -34,7 +36,7 @@ int main() {
     world.objects.push_back(std::make_shared<sphere>(point3(1.0, 0, -1.0), 0.5, material_right)); */
 
     auto ground_material = std::make_shared<lambertian>(color(0.5, 0.5, 0.5));
-    world.objects.push_back(std::make_shared<sphere>(point3(0, -1000, 0), 1000, ground_material));
+    world.add(std::make_shared<sphere>(point3(0, -1000, 0), 1000, ground_material));
 
     for (int a = -11; a < 11; a++) {
         for (int b = -11; b < 11; b++) {
@@ -46,32 +48,34 @@ int main() {
 
                 if (choose_mat < 0.8) {
                     // diffuse
-                    auto albedo = color{ randf(), randf(), randf() } * color{randf(), randf(), randf()};
+                    auto albedo = color{ randf(), randf(), randf() } *color{ randf(), randf(), randf() };
                     sphere_material = std::make_shared<lambertian>(albedo);
-                    world.objects.push_back(std::make_shared<sphere>(center, 0.2, sphere_material));
+                    world.add(std::make_shared<sphere>(center, 0.2, sphere_material));
                 } else if (choose_mat < 0.95) {
                     // metal
-                    auto albedo = color{randf(0.5, 1), randf(0.5, 1), randf(0.5, 1)};
+                    auto albedo = color{ randf(0.5, 1), randf(0.5, 1), randf(0.5, 1) };
                     auto fuzz = randf(0, 0.5);
                     sphere_material = std::make_shared<metal>(albedo, fuzz);
-                    world.objects.push_back(std::make_shared<sphere>(center, 0.2, sphere_material));
+                    world.add(std::make_shared<sphere>(center, 0.2, sphere_material));
                 } else {
                     // glass
                     sphere_material = std::make_shared<dielectric>(1.5);
-                    world.objects.push_back(std::make_shared<sphere>(center, 0.2, sphere_material));
+                    world.add(std::make_shared<sphere>(center, 0.2, sphere_material));
                 }
             }
         }
     }
 
     auto material1 = std::make_shared<dielectric>(1.5);
-    world.objects.push_back(std::make_shared<sphere>(point3(0, 1, 0), 1.0, material1));
+    world.add(std::make_shared<sphere>(point3(0, 1, 0), 1.0, material1));
 
     auto material2 = std::make_shared<lambertian>(color(0.4, 0.2, 0.1));
-    world.objects.push_back(std::make_shared<sphere>(point3(-4, 1, 0), 1.0, material2));
+    world.add(std::make_shared<sphere>(point3(-4, 1, 0), 1.0, material2));
 
     auto material3 = std::make_shared<metal>(color(0.7, 0.6, 0.5), 0.0);
-    world.objects.push_back(std::make_shared<sphere>(point3(4, 1, 0), 1.0, material3));
+    world.add(std::make_shared<sphere>(point3(4, 1, 0), 1.0, material1));
+
+    world = entity_list(std::make_shared<bvh>(world));
 
     camera cam;
     cam.aspect_ratio = 16.0 / 9.0;
@@ -85,5 +89,43 @@ int main() {
     cam.vup = vec3(0, 1, 0);
 
     cam.render(world);
+}
+
+void quads() {
+    entity_list world;
+
+    // Materials
+    auto left_red = std::make_shared<lambertian>(color(1.0, 0.2, 0.2));
+    auto back_green = std::make_shared<lambertian>(color(0.2, 1.0, 0.2));
+    auto right_blue = std::make_shared<lambertian>(color(0.2, 0.2, 1.0));
+    auto upper_orange = std::make_shared<lambertian>(color(1.0, 0.5, 0.0));
+    auto lower_teal = std::make_shared<lambertian>(color(0.2, 0.8, 0.8));
+
+    // Quads
+    world.add(std::make_shared<quad>(point3(-3, -2, 5), vec3(0, 0, -4), vec3(0, 4, 0), left_red));
+    world.add(std::make_shared<quad>(point3(-2, -2, 0), vec3(4, 0, 0), vec3(0, 4, 0), back_green));
+    world.add(std::make_shared<quad>(point3(3, -2, 1), vec3(0, 0, 4), vec3(0, 4, 0), right_blue));
+    world.add(std::make_shared<quad>(point3(-2, 3, 1), vec3(4, 0, 0), vec3(0, 0, 4), upper_orange));
+    world.add(std::make_shared<quad>(point3(-2, -3, 5), vec3(4, 0, 0), vec3(0, 0, -4), lower_teal));
+
+    camera cam;
+
+    cam.aspect_ratio = 1.0;
+    cam.image_height = 400;
+    cam.pixel_samples = 100;
+    cam.max_depth = 50;
+
+    cam.vfov = 80;
+    cam.origin = point3(0, 0, 9);
+    cam.lookat = point3(0, 0, 0);
+    cam.vup = vec3(0, 1, 0);
+
+    cam.render(world);
+    
+}
+
+int main() {
+    //spheres();
+    quads();
     return 0;
 }
