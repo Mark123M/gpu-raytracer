@@ -15,6 +15,7 @@
 #include "quad.h"
 #include "camera.h"
 #include "bvh.h"
+#include "math/transform.h"
 
 __global__ void hello() {
     printf("Hello from block: %u, thread: %u\n", blockIdx.x, threadIdx.x);
@@ -189,7 +190,22 @@ void light_test() {
     cam.render(world);
 }
 
+void math_test() {
+    vec3 v = { 5.4, -4.05, 3.3333 };
+
+    transform id{ vec3{1, 0, 0}, vec3{0, 1, 0}, vec3{0, 0, 1}, vec3{0, 0, 0} };
+    std::cout << id.local_to_world(v) << std::endl;
+    std::cout << id.world_to_local(v) << std::endl;
+    std::cout << id << std::endl;
+
+    transform t1{ vec3{0, 0, -1}, unit_vector(vec3{1, 1, 0}), unit_vector(vec3{1, -1, 0}), vec3{-4, 2, 1} };
+    std::cout << t1.local_to_world(v) << std::endl;
+    std::cout << t1.world_to_local(t1.local_to_world(v)) << std::endl;
+    std::cout << t1 << std::endl;
+}
+
 int main() {
+    //math_test();
     //spheres();
     //quads();
     //light_test();

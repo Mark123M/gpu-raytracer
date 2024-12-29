@@ -1,9 +1,9 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
-#include "math/mat4.h"
 #include "math/vec3.h"
 #include "math/vec2.h"
+#include "math/transform.h"
 #include "util/color.h"
 
 using power = vec3;
@@ -13,7 +13,6 @@ struct light_sample {
 };
 
 class light {
-	mat4 transform;
 	int flags;
 public:
 	virtual light_sample sample_li(const point3& pi, const vec3& n, const point2& u, bool allow_incomplete_pdf) {

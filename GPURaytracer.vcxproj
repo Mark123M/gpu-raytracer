@@ -88,7 +88,7 @@
     <ClInclude Include="material.h" />
     <ClInclude Include="math\vec2.h" />
     <ClInclude Include="math\interval.h" />
-    <ClInclude Include="math\mat4.h" />
+    <ClInclude Include="math\transform.h" />
     <ClInclude Include="math\ray.h" />
     <ClInclude Include="math\util.h" />
     <ClInclude Include="math\vec3.h" />

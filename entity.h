@@ -8,6 +8,7 @@
 
 class material; // For circular imports
 
+// Use pointers to vector quantites as well to avoid copies
 struct hit_result {
 	point3 p;
 	vec3 normal;
