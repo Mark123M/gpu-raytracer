@@ -84,8 +84,11 @@
     <ClInclude Include="aabb.h" />
     <ClInclude Include="bvh.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="light.h" />
     <ClInclude Include="material.h" />
+    <ClInclude Include="math\vec2.h" />
     <ClInclude Include="math\interval.h" />
+    <ClInclude Include="math\mat4.h" />
     <ClInclude Include="math\ray.h" />
     <ClInclude Include="math\util.h" />
     <ClInclude Include="math\vec3.h" />

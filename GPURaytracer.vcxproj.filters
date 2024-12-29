@@ -35,6 +35,9 @@
     <ClInclude Include="bvh.h" />
     <ClInclude Include="triangle.h" />
     <ClInclude Include="quad.h" />
+    <ClInclude Include="light.h" />
+    <ClInclude Include="math\mat4.h" />
+    <ClInclude Include="math\vec2.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="entity.h" />

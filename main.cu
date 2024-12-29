@@ -102,11 +102,11 @@ void quads() {
     auto lower_teal = std::make_shared<lambertian>(color(0.2, 0.8, 0.8));
 
     // Quads
-    world.add(std::make_shared<quad>(point3(-3, -2, 5), vec3(0, 0, -4), vec3(0, 4, 0), left_red));
-    world.add(std::make_shared<quad>(point3(-2, -2, 0), vec3(4, 0, 0), vec3(0, 4, 0), back_green));
-    world.add(std::make_shared<quad>(point3(3, -2, 1), vec3(0, 0, 4), vec3(0, 4, 0), right_blue));
-    world.add(std::make_shared<quad>(point3(-2, 3, 1), vec3(4, 0, 0), vec3(0, 0, 4), upper_orange));
-    world.add(std::make_shared<quad>(point3(-2, -3, 5), vec3(4, 0, 0), vec3(0, 0, -4), lower_teal));
+    world.add(std::make_shared<quad>(point3(-3, -2, 5), vec3(0, 0, -4), vec3(0, 4, 0), left_red, nullptr));
+    world.add(std::make_shared<quad>(point3(-2, -2, 0), vec3(4, 0, 0), vec3(0, 4, 0), back_green, nullptr));
+    world.add(std::make_shared<quad>(point3(3, -2, 1), vec3(0, 0, 4), vec3(0, 4, 0), right_blue, nullptr));
+    world.add(std::make_shared<quad>(point3(-2, 3, 1), vec3(4, 0, 0), vec3(0, 0, 4), upper_orange, nullptr));
+    world.add(std::make_shared<quad>(point3(-2, -3, 5), vec3(4, 0, 0), vec3(0, 0, -4), lower_teal,nullptr));
 
     camera cam;
 
@@ -132,12 +132,12 @@ void cornell_box() {
     auto green = std::make_shared<lambertian>(color(.12, .45, .15));
     auto light = std::make_shared<area_light> (color(15, 15, 15));
 
-    world.add(std::make_shared<quad>(point3(555, 0, 0), vec3(0, 555, 0), vec3(0, 0, 555), green));
-    world.add(std::make_shared<quad>(point3(0, 0, 0), vec3(0, 555, 0), vec3(0, 0, 555), red));
-    world.add(std::make_shared<quad>(point3(343, 554, 332), vec3(-130, 0, 0), vec3(0, 0, -105), light));
-    world.add(std::make_shared<quad>(point3(0, 0, 0), vec3(555, 0, 0), vec3(0, 0, 555), white));
-    world.add(std::make_shared<quad>(point3(555, 555, 555), vec3(-555, 0, 0), vec3(0, 0, -555), white));
-    world.add(std::make_shared<quad>(point3(0, 0, 555), vec3(555, 0, 0), vec3(0, 555, 0), white));
+    world.add(std::make_shared<quad>(point3(555, 0, 0), vec3(0, 555, 0), vec3(0, 0, 555), green, nullptr));
+    world.add(std::make_shared<quad>(point3(0, 0, 0), vec3(0, 555, 0), vec3(0, 0, 555), red, nullptr));
+    world.add(std::make_shared<quad>(point3(343, 554, 332), vec3(-130, 0, 0), vec3(0, 0, -105), nullptr, light));
+    world.add(std::make_shared<quad>(point3(0, 0, 0), vec3(555, 0, 0), vec3(0, 0, 555), white, nullptr));
+    world.add(std::make_shared<quad>(point3(555, 555, 555), vec3(-555, 0, 0), vec3(0, 0, -555), white, nullptr));
+    world.add(std::make_shared<quad>(point3(0, 0, 555), vec3(555, 0, 0), vec3(0, 555, 0), white, nullptr));
 
     std::shared_ptr<entity> box1 = box(point3(0, 0, 0), point3(165, 330, 165), white);
     box1 = std:: make_shared<rotate_y>(box1, 15);
@@ -153,7 +153,7 @@ void cornell_box() {
 
     cam.aspect_ratio = 1.0;
     cam.image_height = 600;
-    cam.pixel_samples = 200;
+    cam.pixel_samples = 50;
     cam.max_depth = 50;
 
     cam.vfov = 40;
@@ -164,7 +164,7 @@ void cornell_box() {
     cam.render(world);
 }
 
-void light() {
+void light_test() {
     entity_list world;
 
     auto light_mat = std::make_shared<area_light>(color{5.0, 5.0, 5.0});
@@ -172,7 +172,7 @@ void light() {
     auto ground_mat = std::make_shared<lambertian>(color{ 0.35686, 0.81176, 0.98431 });
     world.add(std::make_shared<sphere>(point3(0, -1000, 0), 1000, ground_mat));
     world.add(std::make_shared<sphere>(point3(0, 2, 0), 2, sphere_mat));
-    world.add(std::make_shared<quad>(point3(3, 1, -2), vec3(2, 0, 0), vec3(0, 2, 0), light_mat));
+    world.add(std::make_shared<quad>(point3(3, 1, -2), vec3(2, 0, 0), vec3(0, 2, 0), nullptr, light_mat));
 
     camera cam;
 
@@ -192,7 +192,7 @@ void light() {
 int main() {
     //spheres();
     //quads();
-    //light();
+    //light_test();
     cornell_box();
     return 0;
 }

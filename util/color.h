@@ -14,7 +14,7 @@ inline float apply_gamma(float f) {
     return 0;
 }
 
-void write_color(std::ofstream& file, const color& col) {
+inline void write_color(std::ofstream& file, const color& col) {
     // Red from left to right
     // Green from top to bottom
     float r = apply_gamma(col.x);

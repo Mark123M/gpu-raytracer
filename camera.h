@@ -85,13 +85,18 @@ class camera {
 
         ray scattered;
         color attenuation;
-        color emission_color = res.mat->emitted(res.u, res.v, res.p);
+        color emission_color;
+        color scatter_color;
+        
+        if (res.mat != nullptr) {
+            if (!res.mat->scatter(r, res, attenuation, scattered)) {
+                return emission_color;
+            }
 
-        if (!res.mat->scatter(r, res, attenuation, scattered)) {
-            return emission_color;
+            scatter_color = attenuation * ray_color(scattered, world, depth + 1);
+        } else {
+            emission_color = res.lig->le(res.p, res.normal, point2{0, 0}, vec3{0, 0, 0});
         }
-
-        color scatter_color = attenuation * ray_color(scattered, world, depth + 1);
 
         return emission_color + scatter_color;
     }

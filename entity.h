@@ -4,6 +4,7 @@
 #include "math/ray.h"
 #include "math/interval.h"
 #include "aabb.h"
+#include "light.h"
 
 class material; // For circular imports
 
@@ -11,6 +12,7 @@ struct hit_result {
 	point3 p;
 	vec3 normal;
 	std::shared_ptr<material> mat;
+	std::shared_ptr<light> lig;
 	float t;
 	// Texture coordinates
 	float u;

@@ -11,10 +11,6 @@ public:
 	virtual bool scatter(const ray& in, const hit_result& res, color& attenuation, ray& scattered) const {
 		return false;
 	}
-
-	virtual color emitted(float u, float v, const point3& p) const {
-		return color{ 0, 0, 0 };
-	}
 };
 
 class lambertian : public material {
@@ -80,13 +76,4 @@ public:
 	}
 };
 
-class area_light : public material {
-	color le;
-public:
-	area_light(const vec3& le) : le{le} {}
-	
-	color emitted(float u, float v, const point3& p) const override {
-		return le;
-	}
-};
 #endif

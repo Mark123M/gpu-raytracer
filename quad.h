@@ -7,12 +7,13 @@ class quad : public entity {
 	point3 o;
 	vec3 u, v;
 	std::shared_ptr<material> mat;
+	std::shared_ptr<light> lig;
 	aabb bbox;
 	vec3 normal;
 	vec3 w; // Used to find local coordinates
 	float D; // Ax + By + Cz = D
 public:
-	quad(const point3& o, const vec3& u, const vec3& v, std::shared_ptr<material> mat) : o{ o }, u{ u }, v{ v }, mat{ mat } {
+	quad(const point3& o, const vec3& u, const vec3& v, std::shared_ptr<material> mat, std::shared_ptr<light> lig) : o{ o }, u{ u }, v{ v }, mat{ mat }, lig{ lig } {
 		vec3 n = cross(u, v);
 		normal = unit_vector(n);
 		D = dot(normal, o);
@@ -53,7 +54,9 @@ public:
 
 		res.t = t;
 		res.p = p;
+		// Need to include local transform matrix in light/mat
 		res.mat = mat;
+		res.lig = lig;
 		res.set_face_normal(r, normal);
 
 		return true;
@@ -85,12 +88,12 @@ inline std::shared_ptr<entity_list> box(const point3& a, const point3& b, std::s
 	auto dy = vec3(0, max.y - min.y, 0);
 	auto dz = vec3(0, 0, max.z - min.z);
 
-	sides->add(std::make_shared<quad>(point3(min.x, min.y, max.z), dx, dy, mat)); // front
-	sides->add(std::make_shared<quad>(point3(max.x, min.y, max.z), -dz, dy, mat)); // right
-	sides->add(std::make_shared<quad>(point3(max.x, min.y, min.z), -dx, dy, mat)); // back
-	sides->add(std::make_shared<quad>(point3(min.x, min.y, min.z), dz, dy, mat)); // left
-	sides->add(std::make_shared<quad>(point3(min.x, max.y, max.z), dx, -dz, mat)); // top
-	sides->add(std::make_shared<quad>(point3(min.x, min.y, min.z), dx, dz, mat)); // bottom
+	sides->add(std::make_shared<quad>(point3(min.x, min.y, max.z), dx, dy, mat, nullptr)); // front
+	sides->add(std::make_shared<quad>(point3(max.x, min.y, max.z), -dz, dy, mat, nullptr)); // right
+	sides->add(std::make_shared<quad>(point3(max.x, min.y, min.z), -dx, dy, mat, nullptr)); // back
+	sides->add(std::make_shared<quad>(point3(min.x, min.y, min.z), dz, dy, mat, nullptr)); // left
+	sides->add(std::make_shared<quad>(point3(min.x, max.y, max.z), dx, -dz, mat, nullptr)); // top
+	sides->add(std::make_shared<quad>(point3(min.x, min.y, min.z), dx, dz, mat, nullptr)); // bottom
 
 	return sides;
 }
