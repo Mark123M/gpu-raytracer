@@ -5,7 +5,10 @@
 #include "../math/vec3.h"
 #include "../math/interval.h"
 
-using color = vec3;
+typedef class vec3 vec3; // Original class definition
+using color = vec3;      // Alias 1
+using spectrum = vec3; // Alias 2
+using power = vec3;      // Alias 3
 
 inline float apply_gamma(float f) {
     if (f > 0) {
@@ -30,4 +33,3 @@ inline void write_color(std::ofstream& file, const color& col) {
 }
 
 #endif
-

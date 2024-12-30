@@ -28,7 +28,7 @@ public:
 		bbox = aabb(diag1, diag2);
 	}
 
-	aabb get_aabb() const override { return bbox; }
+	const aabb& get_aabb() const override { return bbox; }
 
 	bool hit(const ray& r, interval ray_t, hit_result& res) const override {
 		float denom = dot(normal, r.dir);

@@ -39,7 +39,7 @@ public:
 		return hit;
 	}
 
-	aabb get_aabb() const override { return bbox; }
+	const aabb& get_aabb() const override { return bbox; }
 };
 
 #endif

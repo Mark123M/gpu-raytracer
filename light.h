@@ -6,8 +6,6 @@
 #include "math/transform.h"
 #include "util/color.h"
 
-using power = vec3;
-
 struct light_sample {
 
 };

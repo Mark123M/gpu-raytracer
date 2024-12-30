@@ -60,7 +60,7 @@ public:
 		return hit_left || hit_right;
 	}
 
-	aabb get_aabb() const override { return bbox; }
+	const aabb& get_aabb() const override { return bbox; }
 };
 
 #endif

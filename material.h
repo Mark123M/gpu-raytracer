@@ -4,9 +4,48 @@
 #include "entity.h"
 #include "util/color.h"
 
+struct bsdf_sample {
+	color f;
+	vec3 wi;
+	float pdf = 0;
+	float eta = 1;
+};
+
 class material {
+	int flags = 0;
+	virtual spectrum f(const vec3& wo, const vec3& wi) const = 0;
+	virtual bool sample_f(const vec3& wo, float uc, const point2& u2, bsdf_sample& bs) const = 0;
+	virtual float pdf(const vec3& wo, const vec3& wi) const = 0;
 public:
 	virtual ~material() = default;
+
+	spectrum f(const vec3& wo_world, const vec3& wi_world, const transform& m) const {
+		vec3 wo = m.world_to_local(wo_world);
+		vec3 wi = m.world_to_local(wi_world);
+		return f(wo, wi);
+	}
+
+	bool sample_f(const vec3& wo_world, float uc, const point2& u2, const transform& m,  bsdf_sample& bs) const {
+		vec3 wo = m.world_to_local(wo_world);
+
+		if (!sample_f(wo, uc, u2, bs) || bs.f.near_zero() || !bs.pdf) {
+			return false;
+		}
+
+		bs.wi = m.local_to_world(bs.wi);
+		return true;
+	}
+
+	float pdf(const vec3& wo_world, const vec3& wi_world, const transform& m) const {
+		vec3 wo = m.world_to_local(wo_world);
+		vec3 wi = m.world_to_local(wi_world);
+		return pdf(wo, wi);
+	}
+
+	// TODO: hemisphere to directional reflectance
+	virtual spectrum phd(const vec3& wo_world, float c[], point2 u2[], const transform& m) const {
+		return spectrum{ 0, 0, 0 };
+	}
 
 	virtual bool scatter(const ray& in, const hit_result& res, color& attenuation, ray& scattered) const {
 		return false;
@@ -15,6 +54,19 @@ public:
 
 class lambertian : public material {
 	color albedo;
+
+	spectrum f(const vec3& wo, const vec3& wi) const override {
+		return { 0, 0, 0 };
+	}
+
+	bool sample_f(const vec3& wo, float uc, const point2& u2, bsdf_sample& bs) const override {
+		return false;
+	}
+
+	float pdf(const vec3& wo, const vec3& wi) const override {
+		return 0.0;
+	}
+
 public:
 	lambertian(const color& albedo): albedo{albedo} {}
 
@@ -34,6 +86,18 @@ public:
 class metal : public material {
 	color albedo;
 	float fuzz;
+
+	spectrum f(const vec3& wo, const vec3& wi) const override {
+		return { 0, 0, 0 };
+	}
+
+	bool sample_f(const vec3& wo, float uc, const point2& u2, bsdf_sample& bs) const override {
+		return false;
+	}
+
+	float pdf(const vec3& wo, const vec3& wi) const override {
+		return 0.0;
+	}
 public:
 	metal(const color& albedo, float fuzz) : albedo{ albedo }, fuzz{ fuzz < 1 ? fuzz : 1 } {}
 
@@ -48,6 +112,18 @@ public:
 
 class dielectric : public material {
 	float index;
+
+	spectrum f(const vec3& wo, const vec3& wi) const override {
+		return { 0, 0, 0 };
+	}
+
+	bool sample_f(const vec3& wo, float uc, const point2& u2, bsdf_sample& bs) const override {
+		return false;
+	}
+
+	float pdf(const vec3& wo, const vec3& wi) const override {
+		return 0.0;
+	}
 public:
 	dielectric(float index): index{index} {}
 

@@ -4,6 +4,7 @@
 #include "entity.h"
 #include "util/color.h"
 #include "material.h"
+#include <sstream>
 
 inline std::tm localtime_xp(std::time_t timer) {
     std::tm bt{};
@@ -70,35 +71,63 @@ class camera {
         point3 sample = pixel_center00 + ((i + offset.y) * pixel_y) + ((j + offset.x) * pixel_x);
         return ray{ origin, sample - origin };
     }
+    
+    color ray_color(ray& r, const entity& world) {
+        color L;
+        spectrum beta{ 1, 1, 1 };
 
-    color ray_color(const ray& r, const entity& world, int depth) {
-        // Max recursion depth reached
-        if (depth >= max_depth) {
-            return color(0, 0, 0);
-        }
+        int depth = 0;
+        float p_b;
+        float eta_scale = 1;
 
+        bool specular_bounce = false;
         hit_result res;
+        hit_result prev_res;
 
-        if (!world.hit(r, interval(0.001, infinity), res)) {
-            return color{ 0, 0, 0 };
-        }
-
-        ray scattered;
-        color attenuation;
-        color emission_color;
-        color scatter_color;
-        
-        if (res.mat != nullptr) {
-            if (!res.mat->scatter(r, res, attenuation, scattered)) {
-                return emission_color;
+        while (true) {
+            if (!world.hit(r, interval(0.001, infinity), res)) {
+                // TODO: environment lights
+                break;
             }
 
-            scatter_color = attenuation * ray_color(scattered, world, depth + 1);
-        } else {
-            emission_color = res.lig->le(res.p, res.normal, point2{0, 0}, vec3{0, 0, 0});
+            if (res.lig != nullptr) {
+                color Le = res.lig->le(res.p, res.normal, point2{ 0, 0 }, vec3{ 0, 0, 0 });
+                if (depth == 0 || specular_bounce) {
+                    L += beta * Le;
+                } else {
+                    // TODO: MIS weight
+                    float p_l = 1.0;
+                    float w_l = 1.0;
+                    L += beta * w_l * Le;
+                }
+            }
+
+            if (depth++ == max_depth) {
+                break;
+            }
+
+            // TODO: direct illumination sampling
+            if (res.mat != nullptr) {
+
+            }
+
+            vec3 wo = -r.dir;
+            bsdf_sample bs;
+
+            if (res.mat == nullptr) { // || !res.mat->sample_f(wo, randf(), point2{ randf(), randf() }, res.m, bs)) {
+                break; // Maybe continue instead?
+            }
+
+            ray scattered;
+            color attenuation;
+
+            res.mat->scatter(r, res, attenuation, scattered);
+            beta *= attenuation;
+            prev_res = res;
+            r = scattered;
         }
 
-        return emission_color + scatter_color;
+        return L;
     }
 public:
     float aspect_ratio = 1.0;
@@ -126,17 +155,23 @@ public:
                 // Maybe sample only when near the edge?
                 for (int s = 0; s < pixel_samples; s++) {
                     ray r = get_ray(i, j);
-                    pixel_col += ray_color(r, world, 0);
+                    pixel_col += ray_color(r, world);
                 }
                 write_color(file, pixel_col / pixel_samples);
             }
         }
 
-        std::clog << "\rDone " << clock() - t0 << "ms                                                    \n";
-
-        //std::clog << cross(vec3{ 5, -4, 12 }, vec3{ -16, -5, 2 }) << std::endl;
+        int duration = clock() - t0;
+        std::clog << "\rDone " << duration << "ms                                                    \n";
+        
+        std::stringstream ss;
+        ss << duration/ 1000;
+        std::string duration_string = ss.str();
+        std::ofstream metadata{ "renders/render_" + time_stamp() + "_" + duration_string + "s.metadata.txt", std::ios::app };
+        metadata << "Time elapsed: " << duration << " ms/" << duration / 1000.0 << " s/" << duration / 60000.0 << " m" << std::endl;
 
         file.close();
+        metadata.close();
 	}
 };
 

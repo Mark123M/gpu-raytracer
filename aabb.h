@@ -85,7 +85,7 @@ public:
 		}
 	}
 
-	aabb operator+(const vec3& offset) {
+	aabb operator+(const vec3& offset) const {
 		return aabb(x + offset.x, y + offset.y, z + offset.z);
 	}
 };

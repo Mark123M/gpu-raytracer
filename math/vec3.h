@@ -45,6 +45,13 @@ public:
 		return *this;
 	}
 
+	vec3& operator *=(const vec3& v) {
+		x *= v.x;
+		y *= v.y;
+		z *= v.z;
+		return *this;
+	}
+
 	vec3& operator*=(float k) {
 		x *= k;
 		y *= k;

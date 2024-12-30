@@ -154,7 +154,7 @@ void cornell_box() {
 
     cam.aspect_ratio = 1.0;
     cam.image_height = 600;
-    cam.pixel_samples = 50;
+    cam.pixel_samples = 400;
     cam.max_depth = 50;
 
     cam.vfov = 40;
@@ -208,7 +208,7 @@ int main() {
     //math_test();
     //spheres();
     //quads();
-    //light_test();
-    cornell_box();
+    light_test();
+    //cornell_box();
     return 0;
 }

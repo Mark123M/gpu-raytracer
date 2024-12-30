@@ -12,6 +12,7 @@ class material; // For circular imports
 struct hit_result {
 	point3 p;
 	vec3 normal;
+	transform m;
 	std::shared_ptr<material> mat;
 	std::shared_ptr<light> lig;
 	float t;
@@ -20,9 +21,17 @@ struct hit_result {
 	float v;
 	bool front_face;
 
+	// Update local transform based on normal
+	void update_transform() {
+		vec3 right{ normal.z, 0, -normal.x };
+		vec3 forward = cross(right, normal);
+		m = transform{right, normal, forward, p};
+	}
+
 	void set_face_normal(const ray& r, const vec3& outward_normal) {
 		front_face = dot(r.dir, outward_normal) < 0;
 		normal = front_face ? outward_normal : -outward_normal;
+		update_transform();
 	}
 };
 
@@ -30,7 +39,7 @@ class entity {
 public:
 	virtual ~entity() = default;
 	virtual bool hit(const ray& r, interval ray_t, hit_result& res) const = 0;
-	virtual aabb get_aabb() const = 0;
+	virtual const aabb& get_aabb() const = 0;
 };
 
 class translate : public entity {
@@ -55,7 +64,7 @@ public:
 
 		return true;
 	}
-	aabb get_aabb() const override { return bbox; }
+	const aabb& get_aabb() const override { return bbox; }
 };
 
 class rotate_y : public entity {
@@ -132,10 +141,12 @@ public:
 			(-sin_theta * res.normal.x) + (cos_theta * res.normal.z)
 		);
 
+		res.update_transform();
+
 		return true;
 	}
 
-	aabb get_aabb() const override { return bbox; }
+	const aabb& get_aabb() const override { return bbox; }
 };
 
 #endif
