@@ -44,8 +44,8 @@ class camera {
         float viewport_height = 2 * h;
         float viewport_width = viewport_height * (float(image_width) / image_height); // Adjusted ratio
 
-        z = unit_vector(origin - lookat);
-        x = unit_vector(cross(vup, z));
+        z = normalize(origin - lookat);
+        x = normalize(cross(vup, z));
         y = cross(z, x);
 
         vec3 viewport_x = viewport_width * x;

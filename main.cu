@@ -168,10 +168,11 @@ void cornell_box() {
 void light_test() {
     entity_list world;
 
-    auto light_mat = std::make_shared<area_light>(color{5.0, 5.0, 5.0});
+    auto light_mat = std::make_shared<area_light>(color{15.0, 15.0, 15.0});
     auto sphere_mat = std::make_shared<lambertian>(color{ 0.96078, 0.67059, 0.72549 });
     auto ground_mat = std::make_shared<lambertian>(color{ 0.35686, 0.81176, 0.98431 });
     world.add(std::make_shared<sphere>(point3(0, -1000, 0), 1000, ground_mat));
+    //world.add(std::make_shared<quad>(point3(-250, 0, -250), vec3(555, 0, 0), vec3(0, 0, 555), ground_mat, nullptr));
     world.add(std::make_shared<sphere>(point3(0, 2, 0), 2, sphere_mat));
     world.add(std::make_shared<quad>(point3(3, 1, -2), vec3(2, 0, 0), vec3(0, 2, 0), nullptr, light_mat));
 
@@ -180,11 +181,35 @@ void light_test() {
     cam.aspect_ratio = 16.0 / 9.0;
     cam.image_height = 400;
     cam.pixel_samples = 100;
-    cam.max_depth = 50;
+    cam.max_depth = 20;
 
     cam.vfov = 20;
     cam.origin = point3(26, 3, 6);
     cam.lookat = point3(0, 2, 0);
+    cam.vup = vec3(0, 1, 0);
+
+    cam.render(world);
+}
+
+void light_test_2() {
+    entity_list world;
+
+    auto white = std::make_shared<lambertian>(color(.73, .73, .73));
+    auto light = std::make_shared<area_light>(color(15, 15, 15));
+
+    world.add(std::make_shared<quad>(point3(143, 254, 332), vec3(0, 130, 0), vec3(0, 0, 105), nullptr, light));
+    world.add(std::make_shared<quad>(point3(0, 0, 0), vec3(555, 0, 0), vec3(0, 0, 555), white, nullptr));
+
+    camera cam;
+
+    cam.aspect_ratio = 1.0;
+    cam.image_height = 600;
+    cam.pixel_samples = 100;
+    cam.max_depth = 20;
+
+    cam.vfov = 40;
+    cam.origin = point3(278, 278, -800);
+    cam.lookat = point3(278, 278, 0);
     cam.vup = vec3(0, 1, 0);
 
     cam.render(world);
@@ -198,7 +223,7 @@ void math_test() {
     std::cout << id.world_to_local(v) << std::endl;
     std::cout << id << std::endl;
 
-    transform t1{ vec3{0, 0, -1}, unit_vector(vec3{1, 1, 0}), unit_vector(vec3{1, -1, 0}), vec3{-4, 2, 1} };
+    transform t1{ vec3{0, 0, -1}, normalize(vec3{1, 1, 0}), normalize(vec3{1, -1, 0}), vec3{-4, 2, 1} };
     std::cout << t1.local_to_world(v) << std::endl;
     std::cout << t1.world_to_local(t1.local_to_world(v)) << std::endl;
     std::cout << t1 << std::endl;
@@ -208,7 +233,8 @@ int main() {
     //math_test();
     //spheres();
     //quads();
-    //light_test();
-    cornell_box();
+    light_test();
+    //light_test_2();
+    //cornell_box();
     return 0;
 }

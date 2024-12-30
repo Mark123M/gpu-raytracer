@@ -38,6 +38,7 @@
     <ClInclude Include="light.h" />
     <ClInclude Include="math\transform.h" />
     <ClInclude Include="math\vec2.h" />
+    <ClInclude Include="shape.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="entity.h" />

@@ -36,9 +36,9 @@ public:
 
         res.t = root;
         res.p = r.at(root);
+        res.mat = mat;
         vec3 outward_normal = (res.p - center) / radius;
         res.set_face_normal(r, outward_normal);
-        res.mat = mat;
 
         return true;
 	}

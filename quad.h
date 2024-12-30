@@ -15,7 +15,7 @@ class quad : public entity {
 public:
 	quad(const point3& o, const vec3& u, const vec3& v, std::shared_ptr<material> mat, std::shared_ptr<light> lig) : o{ o }, u{ u }, v{ v }, mat{ mat }, lig{ lig } {
 		vec3 n = cross(u, v);
-		normal = unit_vector(n);
+		normal = normalize(n);
 		D = dot(normal, o);
 		w = n / dot(n, n);
 

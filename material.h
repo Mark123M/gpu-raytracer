@@ -121,7 +121,7 @@ public:
 
 	bool scatter(const ray& in, const hit_result& res, color& attenuation, ray& scattered) const override {
 		vec3 reflected = reflect(in.dir, res.normal);
-		reflected = unit_vector(reflected) + (fuzz * rand_unit_vector());
+		reflected = normalize(reflected) + (fuzz * rand_unit_vector());
 		scattered = ray(res.p, reflected);
 		attenuation = albedo;
 		return dot(reflected, res.normal) > 0; // < 0 means reflection went inside sphere, count as absorbed
@@ -149,7 +149,7 @@ public:
 		attenuation = color(1.0, 1.0, 1.0);
 		float ri = res.front_face ? (1.0 / index) : index; // index1 / index2
 
-		vec3 unit = unit_vector(in.dir);
+		vec3 unit = normalize(in.dir);
 		float cos_theta = std::fmin(dot(-unit, res.normal), 1.0);
 		float sin_theta = std::sqrt(1.0 - cos_theta * cos_theta);
 

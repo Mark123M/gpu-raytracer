@@ -25,7 +25,7 @@ struct hit_result {
 
 	// Update local transform based on normal
 	void update_transform() {
-		vec3 right{ normal.z, 0, -normal.x };
+		vec3 right = normalize(vec3{ normal.z, 0, -normal.x });
 
 		if (normal.x == 0 && normal.z == 0) {
 			right = vec3{normal.y, 0, 0};

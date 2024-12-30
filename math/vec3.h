@@ -113,7 +113,7 @@ inline std::ostream& operator<<(std::ostream& out, const vec3& v) {
 	return out;
 }
 
-inline vec3 unit_vector(const vec3& v) {
+inline vec3 normalize(const vec3& v) {
 	return v / v.length();
 }
 
