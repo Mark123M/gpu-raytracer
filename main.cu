@@ -208,7 +208,7 @@ int main() {
     //math_test();
     //spheres();
     //quads();
-    light_test();
-    //cornell_box();
+    //light_test();
+    cornell_box();
     return 0;
 }

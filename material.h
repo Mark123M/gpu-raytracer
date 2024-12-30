@@ -42,6 +42,10 @@ public:
 		return pdf(wo, wi);
 	}
 
+	bool same_hemisphere(const vec3& u, const vec3& v) const {
+		return u.y * v.y >= 0;
+	}
+
 	// TODO: hemisphere to directional reflectance
 	virtual spectrum phd(const vec3& wo_world, float c[], point2 u2[], const transform& m) const {
 		return spectrum{ 0, 0, 0 };
@@ -56,15 +60,29 @@ class lambertian : public material {
 	color albedo;
 
 	spectrum f(const vec3& wo, const vec3& wi) const override {
-		return { 0, 0, 0 };
+		if (!same_hemisphere(wo, wi)) {
+			return spectrum{ 0, 0, 0 };
+		}
+
+		return albedo * inv_pi;
 	}
 
 	bool sample_f(const vec3& wo, float uc, const point2& u2, bsdf_sample& bs) const override {
-		return false;
+		vec3 wi = rand_cosine_hemisphere_vector(point2{randf(), randf()});
+		float pdf = cosine_hemisphere_pdf(wi.y); // cos(theta) = wi.y
+		
+		bs.f = albedo * inv_pi;
+		bs.wi = wi;
+		bs.pdf = pdf;
+		return true;
 	}
 
 	float pdf(const vec3& wo, const vec3& wi) const override {
-		return 0.0;
+		if (!same_hemisphere(wo, wi)) {
+			return 0;
+		}
+
+		return cosine_hemisphere_pdf(wi.y);
 	}
 
 public:

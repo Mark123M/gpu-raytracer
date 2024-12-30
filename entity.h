@@ -6,6 +6,8 @@
 #include "aabb.h"
 #include "light.h"
 
+const vec3 ZERO_VEC{ 0, 0, 0 };
+
 class material; // For circular imports
 
 // Use pointers to vector quantites as well to avoid copies
@@ -24,8 +26,13 @@ struct hit_result {
 	// Update local transform based on normal
 	void update_transform() {
 		vec3 right{ normal.z, 0, -normal.x };
+
+		if (normal.x == 0 && normal.z == 0) {
+			right = vec3{normal.y, 0, 0};
+		}
+
 		vec3 forward = cross(right, normal);
-		m = transform{right, normal, forward, p};
+		m = transform{ right, normal, forward, ZERO_VEC };
 	}
 
 	void set_face_normal(const ray& r, const vec3& outward_normal) {

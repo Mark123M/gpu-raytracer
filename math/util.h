@@ -5,8 +5,12 @@
 #include <random>
 
 // Constants
-const float infinity = std::numeric_limits<float>::infinity();
-const float pi = 3.1415926535897932385;
+constexpr float infinity = std::numeric_limits<float>::infinity();
+constexpr float pi = 3.1415926535897932385;
+constexpr float inv_pi = 0.31830988618379067154;
+constexpr float sqrt2 = 1.41421356237309504880;
+constexpr float pi_over_2 = 1.57079632679489661923;
+constexpr float pi_over_4 = 0.78539816339744830961;
 
 // Utility functions
 inline float deg2rad(float deg) {

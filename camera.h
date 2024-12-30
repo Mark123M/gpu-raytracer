@@ -38,8 +38,6 @@ class camera {
         image_width = (int)(image_height * aspect_ratio);
         image_width = (image_width < 1) ? 1 : image_width; // Clamping
 
-        
-
         float focal_length = (origin - lookat).length();
         float theta = deg2rad(vfov);
         float h = std::tan(theta / 2) * focal_length;
@@ -114,17 +112,21 @@ class camera {
             vec3 wo = -r.dir;
             bsdf_sample bs;
 
-            if (res.mat == nullptr) { // || !res.mat->sample_f(wo, randf(), point2{ randf(), randf() }, res.m, bs)) {
+            if (res.mat == nullptr || !res.mat->sample_f(wo, randf(), point2{ randf(), randf() }, res.m, bs)) {
                 break; // Maybe continue instead?
             }
 
-            ray scattered;
+            beta *= (bs.f * dot(bs.wi, res.normal)) / bs.pdf;
+            prev_res = res;
+            r = ray{res.p, bs.wi};
+
+            /* ray scattered;
             color attenuation;
 
             res.mat->scatter(r, res, attenuation, scattered);
             beta *= attenuation;
             prev_res = res;
-            r = scattered;
+            r = scattered; */
         }
 
         return L;
@@ -168,7 +170,9 @@ public:
         ss << duration/ 1000;
         std::string duration_string = ss.str();
         std::ofstream metadata{ "renders/render_" + time_stamp() + "_" + duration_string + "s.metadata.txt", std::ios::app };
-        metadata << "Time elapsed: " << duration << " ms/" << duration / 1000.0 << " s/" << duration / 60000.0 << " m" << std::endl;
+        metadata << "time elapsed: " << duration << " ms/" << duration / 1000.0 << " s/" << duration / 60000.0 << " m" << std::endl;
+        metadata << "width: " << image_width << " height: " << image_height << "  " << std::endl;
+        metadata << "samples: " << pixel_samples << " max depth: " << max_depth << std::endl;
 
         file.close();
         metadata.close();

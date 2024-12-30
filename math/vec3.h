@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cassert>
 #include "util.h"
+#include "vec2.h"
 
 class vec3;
 inline vec3 operator*(float k, const vec3& v);
@@ -116,11 +117,6 @@ inline vec3 unit_vector(const vec3& v) {
 	return v / v.length();
 }
 
-inline vec3 rand_unit_vector_disk() {
-	vec3 rand = vec3{ randf(-1, 1), randf(-1, 1), 0.0 };
-	return unit_vector(rand);
-}
-
 inline vec3 rand_unit_vector2() {
 	while (true) {
 		vec3 p = vec3{randf(-1, 1), randf(-1, 1), randf(-1, 1)};
@@ -133,9 +129,13 @@ inline vec3 rand_unit_vector2() {
 
 // Random vector in unit sphere
 inline vec3 rand_unit_vector() {
-	//vec3 rand = vec3{ randf(-1, 1), randf(-1, 1), randf(-1, 1) };
-	//return unit_vector(rand);
-	return rand_unit_vector2();
+	while (true) {
+		vec3 p = vec3{ randf(-1, 1), randf(-1, 1), randf(-1, 1) };
+		float lensq = p.length_squared();
+		if (1e-80 < lensq && lensq <= 1) {
+			return p / sqrt(lensq);
+		}
+	}
 }
 
 inline vec3 rand_hemisphere_vector(const vec3& normal) {
@@ -145,6 +145,42 @@ inline vec3 rand_hemisphere_vector(const vec3& normal) {
 	} else {
 		return -unit;
 	}
+}
+
+inline vec3 rand_uniform_disk() {
+	while (true) {
+		auto p = vec3(randf(-1, 1), randf(-1, 1), 0);
+		if (p.length_squared() < 1)
+			return p;
+	}
+}
+
+inline point2 rand_uniform_disk_concentric(const point2& u) {
+	point2 u_offset = 2 * u - vec2(1, 1);
+	if (u_offset.x == 0 && u_offset.y == 0) {
+		return { 0, 0 };
+	}
+
+	float theta, r;
+	if (std::abs(u_offset.x) > std::abs(u_offset.y)) {
+		r = u_offset.x;
+		theta = pi_over_4 * (u_offset.y / u_offset.x);
+	} else {
+		r = u_offset.y;
+		theta = pi_over_2 - pi_over_4 * (u_offset.x / u_offset.y);
+	}
+	// Returns x and z coordinates on the horizontal plane
+	return r * point2(std::cos(theta), std::sin(theta));
+}
+
+inline vec3 rand_cosine_hemisphere_vector(const point2& u) {
+	point2 d = rand_uniform_disk_concentric(u);
+	float y = std::sqrt(1 - d.x * d.x - d.y * d.y);
+	return vec3{ d.x, y, d.y};
+}
+
+inline float cosine_hemisphere_pdf(float cos_theta) {
+	return cos_theta * inv_pi;
 }
 
 inline vec3 reflect(const vec3& v, const vec3& n) {
