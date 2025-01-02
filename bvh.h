@@ -54,7 +54,7 @@ public:
 		}
 
 		bool hit_left = left->hit(r, ray_t, res);
-		// Check if right node was hit first and update hit_result if so
+		// Check if right node was hit first and update hit_result if so (similar to entity_list)
 		bool hit_right = right->hit(r, interval(ray_t.min, hit_left ? res.t : ray_t.max), res);
 
 		return hit_left || hit_right;

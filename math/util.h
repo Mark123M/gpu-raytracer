@@ -30,5 +30,11 @@ inline int randi(int min, int max) {
 	return (int)randf(min, max);
 }
 
+inline float power_heuristic(int ni, float pi, int nj, float pj) {
+	float i = ni * pi;
+	float j = nj * pj;
+	return (i * i) / (i * i + j * j);
+}
+
 #endif
 

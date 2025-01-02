@@ -2,27 +2,29 @@
 #define QUAD_H
 
 #include "entity.h"
+#include "shape.h"
+#include "light.h"
 
 class quad : public entity {
 	point3 o;
 	vec3 u, v;
-	std::shared_ptr<material> mat;
-	std::shared_ptr<light> lig;
+	parallelogram p;
 	aabb bbox;
 	vec3 normal;
 	vec3 w; // Used to find local coordinates
 	float D; // Ax + By + Cz = D
 public:
-	quad(const point3& o, const vec3& u, const vec3& v, std::shared_ptr<material> mat, std::shared_ptr<light> lig) : o{ o }, u{ u }, v{ v }, mat{ mat }, lig{ lig } {
+	quad(const point3& o, const vec3& u, const vec3& v, std::shared_ptr<material> mat, std::shared_ptr<area_light> lig) : entity{ mat, lig }, o { o }, u{ u }, v{ v }, p{ o, u, v } {
 		vec3 n = cross(u, v);
 		normal = normalize(n);
 		D = dot(normal, o);
 		w = n / dot(n, n);
 
 		set_bbox();
+		s = &p;
 	}
 
-	virtual void set_bbox() {
+	void set_bbox() {
 		aabb diag1 = aabb(o, o + u + v);
 		aabb diag2 = aabb(o + u, o + v);
 		bbox = aabb(diag1, diag2);
@@ -58,19 +60,17 @@ public:
 		res.mat = mat;
 		res.lig = lig;
 		res.set_face_normal(r, normal);
-
-		return true;
+		
+		return r.target == nullptr || r.target == this;
 	}
 
-	virtual bool is_interior(float a, float b, hit_result& res) const {
+	bool is_interior(float a, float b, hit_result& res) const {
 		interval coord_bounds = interval(0, 1);
 
 		if (!coord_bounds.contains(a) || !coord_bounds.contains(b)) {
 			return false;
 		}
-
-		res.u = a;
-		res.v = b;
+		
 		return true;
 	}
 };

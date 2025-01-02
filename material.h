@@ -3,6 +3,7 @@
 
 #include "entity.h"
 #include "util/color.h"
+#include "hit_result.h"
 
 struct bsdf_sample {
 	color f;

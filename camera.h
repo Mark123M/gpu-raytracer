@@ -2,6 +2,7 @@
 #define CAMERA_H
 
 #include "entity.h"
+#include "light.h"
 #include "util/color.h"
 #include "material.h"
 #include <sstream>
@@ -70,12 +71,43 @@ class camera {
         return ray{ origin, sample - origin };
     }
     
-    color ray_color(ray& r, const entity& world) {
+    color sample_ld(ray& r, hit_result& res, const std::vector<entity*>& lights) {
+        float u = randf();
+        float p_light = 1.0 / lights.size();
+        entity* sampled_light = nullptr;
+
+        for (entity* e : lights) {
+            u -= p_light;
+            if (u < 0) {
+                sampled_light = e;
+            }
+        }
+
+        light_sample ls;
+        if (!sampled_light->lig->sample_li(res, ls, sampled_light)) {
+            return { 0, 0, 0 };
+        }
+
+        vec3 wo = -r.dir;
+        vec3 wi = ls.wi;
+        spectrum f = res.mat->f(wo, wi, res.m) * dot(wi, res.normal);
+        float p_l = p_light * ls.pdf;
+
+        if (sampled_light->lig->is_delta()) {
+            return ls.L * f / p_l;
+        } else {
+            float p_b = res.mat->pdf(wo, wi, res.m);
+            float w_l = power_heuristic(1, p_l, 1, p_b);
+            return (w_l * ls.L * f) / p_l;
+        }
+    }
+
+    color ray_color(ray& r, const entity& world, const std::vector<entity*>& lights) {
         color L;
         spectrum beta{ 1, 1, 1 };
 
         int depth = 0;
-        float p_b;
+        float p_b = 0;
         float eta_scale = 1;
 
         bool specular_bounce = false;
@@ -89,12 +121,12 @@ class camera {
             }
 
             if (res.lig != nullptr) {
-                color Le = res.lig->le(res.p, res.normal, point2{ 0, 0 }, vec3{ 0, 0, 0 });
+                color Le = res.lig->Le(res.p, res.normal, vec3{ 0, 0, 0 });
                 if (depth == 0 || specular_bounce) {
                     L += beta * Le;
                 } else {
                     // TODO: MIS weight
-                    float p_l = 1.0;
+                   // float p_l = (1.0 / lights.size()) * prev_res.lig->pdf_li(;
                     float w_l = 1.0;
                     L += beta * w_l * Le;
                 }
@@ -106,7 +138,8 @@ class camera {
 
             // TODO: direct illumination sampling
             if (res.mat != nullptr) {
-
+                color Ld = sample_ld(r, res, lights);
+                L += beta * Ld;
             }
 
             vec3 wo = -r.dir;
@@ -117,16 +150,9 @@ class camera {
             }
 
             beta *= (bs.f * dot(bs.wi, res.normal)) / bs.pdf;
+            p_b = bs.pdf;
             prev_res = res;
             r = ray{res.p, bs.wi};
-
-            /* ray scattered;
-            color attenuation;
-
-            res.mat->scatter(r, res, attenuation, scattered);
-            beta *= attenuation;
-            prev_res = res;
-            r = scattered; */
         }
 
         return L;
@@ -142,7 +168,7 @@ public:
     point3 lookat = point3(0, 0, -1); // Point camera is looking at
     vec3 vup = vec3(0, 1, 0); // Up vector of camera
 
-	void render(const entity& world) {
+	void render(const entity& world, const std::vector<entity*>& lights) {
         initialize();
 
         std::ofstream file{ "renders/render_" + time_stamp() + ".ppm", std::ios::app };
@@ -157,7 +183,7 @@ public:
                 // Maybe sample only when near the edge?
                 for (int s = 0; s < pixel_samples; s++) {
                     ray r = get_ray(i, j);
-                    pixel_col += ray_color(r, world);
+                    pixel_col += ray_color(r, world, lights);
                 }
                 write_color(file, pixel_col / pixel_samples);
             }

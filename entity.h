@@ -3,47 +3,20 @@
 
 #include "math/ray.h"
 #include "math/interval.h"
+#include "hit_result.h"
 #include "aabb.h"
-#include "light.h"
-
-const vec3 ZERO_VEC{ 0, 0, 0 };
 
 class material; // For circular imports
-
-// Use pointers to vector quantites as well to avoid copies
-struct hit_result {
-	point3 p;
-	vec3 normal;
-	transform m;
-	std::shared_ptr<material> mat;
-	std::shared_ptr<light> lig;
-	float t;
-	// Texture coordinates
-	float u;
-	float v;
-	bool front_face;
-
-	// Update local transform based on normal
-	void update_transform() {
-		vec3 right = normalize(vec3{ normal.z, 0, -normal.x });
-
-		if (normal.x == 0 && normal.z == 0) {
-			right = vec3{normal.y, 0, 0};
-		}
-
-		vec3 forward = cross(right, normal);
-		m = transform{ right, normal, forward, ZERO_VEC };
-	}
-
-	void set_face_normal(const ray& r, const vec3& outward_normal) {
-		front_face = dot(r.dir, outward_normal) < 0;
-		normal = front_face ? outward_normal : -outward_normal;
-		update_transform();
-	}
-};
+class light;
+class shape;
 
 class entity {
 public:
+	std::shared_ptr<material> mat;
+	std::shared_ptr<light> lig;
+	shape* s;
+	entity(): mat{nullptr}, lig{nullptr}, s{nullptr} {}
+	entity(std::shared_ptr<material> mat, std::shared_ptr<light> lig) : mat{ mat }, lig{ lig }, s{ nullptr } {}
 	virtual ~entity() = default;
 	virtual bool hit(const ray& r, interval ray_t, hit_result& res) const = 0;
 	virtual const aabb& get_aabb() const = 0;

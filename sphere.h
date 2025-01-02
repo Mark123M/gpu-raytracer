@@ -39,8 +39,8 @@ public:
         res.mat = mat;
         vec3 outward_normal = (res.p - center) / radius;
         res.set_face_normal(r, outward_normal);
-
-        return true;
+        
+        return r.target == nullptr || r.target == this;
 	}
 
     const aabb& get_aabb() const override { return bbox; }
