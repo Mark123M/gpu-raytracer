@@ -57,11 +57,10 @@ public:
 		res.t = t;
 		res.p = p;
 		// Need to include local transform matrix in light/mat
-		res.mat = mat;
-		res.lig = lig;
+		res.target = this;
 		res.set_face_normal(r, normal);
 		
-		return r.target == nullptr || r.target == this;
+		return true;
 	}
 
 	bool is_interior(float a, float b, hit_result& res) const {

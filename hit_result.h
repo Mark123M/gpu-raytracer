@@ -15,8 +15,7 @@ struct hit_result {
 	point3 p;
 	vec3 normal;
 	transform m;
-	std::shared_ptr<material> mat;
-	std::shared_ptr<light> lig;
+	const entity* target;
 	float t;
 	// Texture coordinates
 	bool front_face;

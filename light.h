@@ -28,7 +28,7 @@ public:
 
 	virtual bool sample_li(hit_result& res, light_sample& ls, const entity* target, bool allow_incomplete_pdf = false) const = 0;
 
-	virtual float pdf_li(hit_result& res, const vec3& wi, bool allow_incomplete_pdf = false) const = 0;
+	virtual float pdf_li(point3 &p, hit_result& res, const vec3& wi, bool allow_incomplete_pdf = false) const = 0;
 
 	// Light for ray intersection
 	virtual color L(const point3& p, const vec3& n, const vec3& w) const {
@@ -67,7 +67,7 @@ public:
 		// Check if light is blocked or not
 		vec3 wi = normalize(p_s - res.p);
 		hit_result res_l;
-		if (!world.hit(ray{ res.p, wi, target }, interval(0.001, infinity), res_l)) {
+		if (!world.hit(ray{ res.p, wi }, interval(0.001, infinity), res_l) || res_l.target != target) {
 			return false;
 		}
 		
@@ -81,8 +81,8 @@ public:
 		return true;
 	}
 
-	float pdf_li(hit_result& res, const vec3& wi, bool allow_incomplete_pdf = false) const override {
-		return 0.0;
+	float pdf_li(point3& p, hit_result& res, const vec3& wi, bool allow_incomplete_pdf = false) const override {
+		return 0.0; // target->s->pdf(res, res_l, wi);
 	}
 
 	// Light for ray intersection

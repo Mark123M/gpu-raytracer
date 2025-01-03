@@ -84,19 +84,20 @@ class camera {
         }
 
         light_sample ls;
-        if (!sampled_light->lig->sample_li(res, ls, sampled_light)) {
+        if (sampled_light != nullptr && !sampled_light->lig->sample_li(res, ls, sampled_light)) {
             return { 0, 0, 0 };
         }
 
         vec3 wo = -r.dir;
         vec3 wi = ls.wi;
-        spectrum f = res.mat->f(wo, wi, res.m) * dot(wi, res.normal);
+        std::shared_ptr<material> mat = res.target->mat;
+        spectrum f = mat->f(wo, wi, res.m) * dot(wi, res.normal);
         float p_l = p_light * ls.pdf;
 
         if (sampled_light->lig->is_delta()) {
             return ls.L * f / p_l;
         } else {
-            float p_b = res.mat->pdf(wo, wi, res.m);
+            float p_b = mat->pdf(wo, wi, res.m);
             float w_l = power_heuristic(1, p_l, 1, p_b);
             return (w_l * ls.L * f) / p_l;
         }
@@ -120,13 +121,18 @@ class camera {
                 break;
             }
 
-            if (res.lig != nullptr) {
-                color Le = res.lig->Le(res.p, res.normal, vec3{ 0, 0, 0 });
+            std::shared_ptr<material> mat = res.target->mat;
+            std::shared_ptr<light> lig = res.target->lig;
+
+            if (lig != nullptr) {
+                color Le = lig->Le(res.p, res.normal, vec3{ 0, 0, 0 });
                 if (depth == 0 || specular_bounce) {
                     L += beta * Le;
                 } else {
                     // TODO: MIS weight
                    // float p_l = (1.0 / lights.size()) * prev_res.lig->pdf_li(;
+                    // Don't need shadow ray check because light was hit
+                    //float p_l = (1.0 / lights.size()) * prev_res.lig->pdf_li(prev_res, r.dir);
                     float w_l = 1.0;
                     L += beta * w_l * Le;
                 }
@@ -137,7 +143,7 @@ class camera {
             }
 
             // TODO: direct illumination sampling
-            if (res.mat != nullptr) {
+            if (mat != nullptr) {
                 color Ld = sample_ld(r, res, lights);
                 L += beta * Ld;
             }
@@ -145,7 +151,7 @@ class camera {
             vec3 wo = -r.dir;
             bsdf_sample bs;
 
-            if (res.mat == nullptr || !res.mat->sample_f(wo, randf(), point2{ randf(), randf() }, res.m, bs)) {
+            if (mat == nullptr || !mat->sample_f(wo, randf(), point2{ randf(), randf() }, res.m, bs)) {
                 break; // Maybe continue instead?
             }
 
@@ -188,6 +194,8 @@ public:
                 write_color(file, pixel_col / pixel_samples);
             }
         }
+        /*ray test = get_ray(500, 170);
+        ray_color(test, world, lights); */
 
         int duration = clock() - t0;
         std::clog << "\rDone " << duration << "ms                                                    \n";

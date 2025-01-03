@@ -157,7 +157,7 @@ void cornell_box() {
     camera cam;
     cam.aspect_ratio = 1.0;
     cam.image_height = 600;
-    cam.pixel_samples = 400;
+    cam.pixel_samples = 10;
     cam.max_depth = 16;
 
     cam.vfov = 40;
@@ -205,7 +205,8 @@ void light_test_2() {
     auto white = std::make_shared<lambertian>(color(.73, .73, .73));
     auto light = std::make_shared<area_light>(color(15, 15, 15), world);
 
-    world.add(std::make_shared<quad>(point3(143, 254, 332), vec3(0, 130, 0), vec3(0, 0, 105), nullptr, light));
+    auto light1 = std::make_shared<quad>(point3(143, 254, 332), vec3(0, 130, 0), vec3(0, 0, 105), nullptr, light);
+    world.add(light1);
     world.add(std::make_shared<quad>(point3(0, 0, 0), vec3(555, 0, 0), vec3(0, 0, 555), white, nullptr));
 
     camera cam;
@@ -219,7 +220,7 @@ void light_test_2() {
     cam.lookat = point3(278, 278, 0);
     cam.vup = vec3(0, 1, 0);
 
-    cam.render(world, {});
+    cam.render(world, {light1.get()});
 }
 
 void math_test() {
