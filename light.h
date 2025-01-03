@@ -28,7 +28,7 @@ public:
 
 	virtual bool sample_li(hit_result& res, light_sample& ls, const entity* target, bool allow_incomplete_pdf = false) const = 0;
 
-	virtual float pdf_li(point3 &p, hit_result& res, const vec3& wi, bool allow_incomplete_pdf = false) const = 0;
+	virtual float pdf_li(const ray& r_shadow, const hit_result& res_l, bool allow_incomplete_pdf = false) const = 0;
 
 	// Light for ray intersection
 	virtual color L(const point3& p, const vec3& n, const vec3& w) const {
@@ -66,14 +66,15 @@ public:
 
 		// Check if light is blocked or not
 		vec3 wi = normalize(p_s - res.p);
+		ray r_shadow{ res.p, wi };
 		hit_result res_l;
-		if (!world.hit(ray{ res.p, wi }, interval(0.001, infinity), res_l) || res_l.target != target) {
+		if (!world.hit(r_shadow, interval(0.001, infinity), res_l) || res_l.target != target) {
 			return false;
 		}
 		
 		// Compute radiance from light
 		color Le = L(res_l.p, res_l.normal, -wi);
-		float pdf_s = target->s->pdf(res, res_l, wi);
+		float pdf_s = target->s->pdf(r_shadow, res_l);
 
 		ls.L = Le;
 		ls.wi = wi;
@@ -81,8 +82,8 @@ public:
 		return true;
 	}
 
-	float pdf_li(point3& p, hit_result& res, const vec3& wi, bool allow_incomplete_pdf = false) const override {
-		return 0.0; // target->s->pdf(res, res_l, wi);
+	float pdf_li(const ray& r, const hit_result& res_l, bool allow_incomplete_pdf = false) const override {
+		return res_l.target->s->pdf(r, res_l); // target->s->pdf(res, res_l, wi);
 	}
 
 	// Light for ray intersection

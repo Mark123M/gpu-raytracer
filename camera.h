@@ -130,12 +130,10 @@ class camera {
                 if (depth == 0 || specular_bounce) {
                     L += beta * Le;
                 } else {
-                    // TODO: MIS weight
-                   // float p_l = (1.0 / lights.size()) * prev_res.lig->pdf_li(;
                     // Don't need shadow ray check because light was hit
-                    //float p_l = (1.0 / lights.size()) * prev_res.lig->pdf_li(prev_res, r.dir);
-                    float w_l = 1.0;
-                    L += beta * w_l * Le;
+                    float p_l = (1.0 / lights.size()) * lig->pdf_li(r, res);
+                    float w_b = power_heuristic(1, p_b, 1, p_l);
+                    L += beta * w_b * Le;
                 }
             }
 

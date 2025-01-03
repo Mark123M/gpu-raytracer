@@ -9,7 +9,7 @@ public:
 	virtual float area() const = 0;
 	virtual point3 sample(const hit_result& res, const point2& u) const = 0;
 	// res_l is the hit_result from ray hitting the light
-	virtual float pdf(const hit_result& res, const hit_result& res_l, const vec3& wi) const = 0;
+	virtual float pdf(const ray& r, const hit_result& res_l) const = 0;
 };
 
 class parallelogram : public shape {
@@ -26,8 +26,8 @@ public:
 		return o + u2.x * u + u2.y * v;
 	}
 
-	float pdf(const hit_result& res, const hit_result& res_l, const vec3& wi) const override {
-		float jacobian = dot(-wi, res_l.normal) / (res.p - res_l.p).length_squared();
+	float pdf(const ray& r, const hit_result& res_l) const override {
+		float jacobian = dot(-r.dir, res_l.normal) / (r.origin - res_l.p).length_squared();
 		return (1 / area()) / jacobian; // need to be converted to solid angle
 	}
 };
