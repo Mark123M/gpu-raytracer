@@ -143,7 +143,7 @@ void cornell_box() {
     world.add(light1);
 
     std::shared_ptr<entity> box1 = box(point3(0, 0, 0), point3(165, 330, 165), white);
-    box1 = std:: make_shared<rotate_y>(box1, 15);
+    box1 = std::make_shared<rotate_y>(box1, 15);
     box1 = std::make_shared<translate>(box1, vec3(265, 0, 295));
     world.add(box1);
 
@@ -156,9 +156,9 @@ void cornell_box() {
 
     camera cam;
     cam.aspect_ratio = 1.0;
-    cam.image_height = 600;
-    cam.pixel_samples = 10;
-    cam.max_depth = 16;
+    cam.image_height = 1080;
+    cam.pixel_samples = 4000;
+    cam.max_depth = 50;
 
     cam.vfov = 40;
     cam.origin = point3(278, 278, -800);

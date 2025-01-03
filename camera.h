@@ -6,6 +6,7 @@
 #include "util/color.h"
 #include "material.h"
 #include <sstream>
+#include "math/util.h"
 
 inline std::tm localtime_xp(std::time_t timer) {
     std::tm bt{};
@@ -159,6 +160,15 @@ class camera {
             p_b = bs.pdf;
             prev_res = res;
             r = ray{res.p, bs.wi};
+
+            float beta_max = std::max(beta.x, std::max(beta.y, beta.z));
+            if (beta_max <= 1 && depth > 1) {
+                float q = std::max(0.0f, 1 - beta_max);
+                if (randf() < q) {
+                    break;
+                }
+                beta /= 1 - q;
+            }
         }
 
         return L;
