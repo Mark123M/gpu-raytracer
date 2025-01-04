@@ -1,0 +1,3 @@
+time elapsed: 50440 ms/50.44 s/0.840667 m
+width: 711 height: 400  
+samples: 100 max depth: 16

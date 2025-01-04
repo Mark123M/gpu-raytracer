@@ -2,9 +2,11 @@
 #define CAMERA_H
 
 #include "entity.h"
+#include "light.h"
 #include "util/color.h"
 #include "material.h"
 #include <sstream>
+#include "math/util.h"
 
 inline std::tm localtime_xp(std::time_t timer) {
     std::tm bt{};
@@ -38,16 +40,14 @@ class camera {
         image_width = (int)(image_height * aspect_ratio);
         image_width = (image_width < 1) ? 1 : image_width; // Clamping
 
-        
-
         float focal_length = (origin - lookat).length();
         float theta = deg2rad(vfov);
         float h = std::tan(theta / 2) * focal_length;
         float viewport_height = 2 * h;
         float viewport_width = viewport_height * (float(image_width) / image_height); // Adjusted ratio
 
-        z = unit_vector(origin - lookat);
-        x = unit_vector(cross(vup, z));
+        z = normalize(origin - lookat);
+        x = normalize(cross(vup, z));
         y = cross(z, x);
 
         vec3 viewport_x = viewport_width * x;
@@ -72,12 +72,44 @@ class camera {
         return ray{ origin, sample - origin };
     }
     
-    color ray_color(ray& r, const entity& world) {
+    color sample_ld(ray& r, hit_result& res, const std::vector<entity*>& lights) {
+        float u = randf();
+        float p_light = 1.0 / lights.size();
+        entity* sampled_light = nullptr;
+
+        for (entity* e : lights) {
+            u -= p_light;
+            if (u < 0) {
+                sampled_light = e;
+            }
+        }
+
+        light_sample ls;
+        if (sampled_light != nullptr && !sampled_light->lig->sample_li(res, ls, sampled_light)) {
+            return { 0, 0, 0 };
+        }
+
+        vec3 wo = -r.dir;
+        vec3 wi = ls.wi;
+        std::shared_ptr<material> mat = res.target->mat;
+        spectrum f = mat->f(wo, wi, res.m) * dot(wi, res.normal);
+        float p_l = p_light * ls.pdf;
+
+        if (sampled_light->lig->is_delta()) {
+            return ls.L * f / p_l;
+        } else {
+            float p_b = mat->pdf(wo, wi, res.m);
+            float w_l = power_heuristic(1, p_l, 1, p_b);
+            return (w_l * ls.L * f) / p_l;
+        }
+    }
+
+    color ray_color(ray& r, const entity& world, const std::vector<entity*>& lights) {
         color L;
         spectrum beta{ 1, 1, 1 };
 
         int depth = 0;
-        float p_b;
+        float p_b = 0;
         float eta_scale = 1;
 
         bool specular_bounce = false;
@@ -90,15 +122,18 @@ class camera {
                 break;
             }
 
-            if (res.lig != nullptr) {
-                color Le = res.lig->le(res.p, res.normal, point2{ 0, 0 }, vec3{ 0, 0, 0 });
+            std::shared_ptr<material> mat = res.target->mat;
+            std::shared_ptr<light> lig = res.target->lig;
+
+            if (lig != nullptr) {
+                color Le = lig->Le(res.p, res.normal, vec3{ 0, 0, 0 });
                 if (depth == 0 || specular_bounce) {
                     L += beta * Le;
                 } else {
-                    // TODO: MIS weight
-                    float p_l = 1.0;
-                    float w_l = 1.0;
-                    L += beta * w_l * Le;
+                    // Don't need shadow ray check because light was hit
+                    float p_l = (1.0 / lights.size()) * lig->pdf_li(r, res);
+                    float w_b = power_heuristic(1, p_b, 1, p_l);
+                    L += beta * w_b * Le;
                 }
             }
 
@@ -107,24 +142,31 @@ class camera {
             }
 
             // TODO: direct illumination sampling
-            if (res.mat != nullptr) {
-
+            if (mat != nullptr) {
+                color Ld = sample_ld(r, res, lights);
+                L += beta * Ld;
             }
 
             vec3 wo = -r.dir;
             bsdf_sample bs;
 
-            if (res.mat == nullptr) { // || !res.mat->sample_f(wo, randf(), point2{ randf(), randf() }, res.m, bs)) {
+            if (mat == nullptr || !mat->sample_f(wo, randf(), point2{ randf(), randf() }, res.m, bs)) {
                 break; // Maybe continue instead?
             }
 
-            ray scattered;
-            color attenuation;
-
-            res.mat->scatter(r, res, attenuation, scattered);
-            beta *= attenuation;
+            beta *= (bs.f * dot(bs.wi, res.normal)) / bs.pdf;
+            p_b = bs.pdf;
             prev_res = res;
-            r = scattered;
+            r = ray{res.p, bs.wi};
+
+            float beta_max = std::max(beta.x, std::max(beta.y, beta.z));
+            if (beta_max <= 1 && depth > 1) {
+                float q = std::max(0.0f, 1 - beta_max);
+                if (randf() < q) {
+                    break;
+                }
+                beta /= 1 - q;
+            }
         }
 
         return L;
@@ -140,7 +182,7 @@ public:
     point3 lookat = point3(0, 0, -1); // Point camera is looking at
     vec3 vup = vec3(0, 1, 0); // Up vector of camera
 
-	void render(const entity& world) {
+	void render(const entity& world, const std::vector<entity*>& lights) {
         initialize();
 
         std::ofstream file{ "renders/render_" + time_stamp() + ".ppm", std::ios::app };
@@ -155,11 +197,13 @@ public:
                 // Maybe sample only when near the edge?
                 for (int s = 0; s < pixel_samples; s++) {
                     ray r = get_ray(i, j);
-                    pixel_col += ray_color(r, world);
+                    pixel_col += ray_color(r, world, lights);
                 }
                 write_color(file, pixel_col / pixel_samples);
             }
         }
+        /*ray test = get_ray(500, 170);
+        ray_color(test, world, lights); */
 
         int duration = clock() - t0;
         std::clog << "\rDone " << duration << "ms                                                    \n";
@@ -168,7 +212,9 @@ public:
         ss << duration/ 1000;
         std::string duration_string = ss.str();
         std::ofstream metadata{ "renders/render_" + time_stamp() + "_" + duration_string + "s.metadata.txt", std::ios::app };
-        metadata << "Time elapsed: " << duration << " ms/" << duration / 1000.0 << " s/" << duration / 60000.0 << " m" << std::endl;
+        metadata << "time elapsed: " << duration << " ms/" << duration / 1000.0 << " s/" << duration / 60000.0 << " m" << std::endl;
+        metadata << "width: " << image_width << " height: " << image_height << "  " << std::endl;
+        metadata << "samples: " << pixel_samples << " max depth: " << max_depth << std::endl;
 
         file.close();
         metadata.close();

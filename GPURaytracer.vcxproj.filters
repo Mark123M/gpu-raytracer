@@ -35,9 +35,11 @@
     <ClInclude Include="bvh.h" />
     <ClInclude Include="triangle.h" />
     <ClInclude Include="quad.h" />
-    <ClInclude Include="light.h" />
     <ClInclude Include="math\transform.h" />
     <ClInclude Include="math\vec2.h" />
+    <ClInclude Include="shape.h" />
+    <ClInclude Include="hit_result.h" />
+    <ClInclude Include="light.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="entity.h" />

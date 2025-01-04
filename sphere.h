@@ -7,10 +7,9 @@
 class sphere : public entity {
 	point3 center;
 	float radius;
-    std::shared_ptr<material> mat;
     aabb bbox;
 public:
-    sphere(const point3& center, float radius, std::shared_ptr<material> mat) : center{ center }, radius{ radius > 0 ? radius : 0 }, mat{ mat } {
+    sphere(const point3& center, float radius, std::shared_ptr<material> mat) : entity{mat, nullptr}, center { center }, radius{ radius > 0 ? radius : 0 } {
         vec3 offset = vec3(radius, radius, radius);
         bbox = aabb(center - offset, center + offset);
     }
@@ -36,10 +35,10 @@ public:
 
         res.t = root;
         res.p = r.at(root);
+        res.target = this;
         vec3 outward_normal = (res.p - center) / radius;
         res.set_face_normal(r, outward_normal);
-        res.mat = mat;
-
+        
         return true;
 	}
 
