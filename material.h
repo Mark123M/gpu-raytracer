@@ -69,7 +69,7 @@ class lambertian : public material {
 	}
 
 	bool sample_f(const vec3& wo, float uc, const point2& u2, bsdf_sample& bs) const override {
-		vec3 wi = rand_cosine_hemisphere_vector(point2{randf(), randf()});
+		vec3 wi = rand_cosine_hemisphere_vector(u2);
 		float pdf = cosine_hemisphere_pdf(wi.y); // cos(theta) = wi.y
 		
 		bs.f = albedo * inv_pi;
