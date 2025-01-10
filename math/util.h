@@ -17,8 +17,9 @@ inline float deg2rad(float deg) {
 	return deg * pi / 180.0;
 }
 
+static std::random_device                  rand_dev;
+static std::mt19937                        generator(rand_dev());
 static std::uniform_real_distribution<float> distribution(0.0, 1.0);
-static std::mt19937 generator;
 
 inline float randf() {
 	return distribution(generator);

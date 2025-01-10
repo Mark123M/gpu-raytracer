@@ -1,0 +1,3 @@
+time elapsed: 27635 ms/27.635 s/0.460583 m
+width: 1080 height: 1080  
+samples: 20 max depth: 16

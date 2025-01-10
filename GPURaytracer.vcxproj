@@ -102,6 +102,7 @@
   <ItemGroup>
     <ClCompile Include="entity.h" />
     <ClCompile Include="entitylist.h" />
+    <ClCompile Include="math\stratified_sampler.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
