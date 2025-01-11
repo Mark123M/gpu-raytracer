@@ -86,6 +86,7 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="hit_result.h" />
     <ClInclude Include="light.h" />
+    <ClInclude Include="math\halton_sampler.h" />
     <ClInclude Include="shape.h" />
     <ClInclude Include="material.h" />
     <ClInclude Include="math\vec2.h" />

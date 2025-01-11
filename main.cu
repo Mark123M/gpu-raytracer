@@ -81,7 +81,7 @@ void spheres() {
     camera cam;
     cam.aspect_ratio = 16.0 / 9.0;
     cam.image_height = 675;
-    cam.pixel_samples = 100;
+    cam.samples_per_pixel = 100;
     cam.max_depth = 20;
 
     cam.vfov = 20;
@@ -113,7 +113,7 @@ void quads() {
     camera cam;
     cam.aspect_ratio = 1.0;
     cam.image_height = 400;
-    cam.pixel_samples = 100;
+    cam.samples_per_pixel = 100;
     cam.max_depth = 50;
 
     cam.vfov = 80;
@@ -157,7 +157,7 @@ void cornell_box() {
     camera cam;
     cam.aspect_ratio = 1.0;
     cam.image_height = 1080;
-    cam.pixel_samples = 4000;
+    cam.samples_per_pixel = 4000;
     cam.max_depth = 50;
 
     cam.vfov = 40;
@@ -187,7 +187,7 @@ void light_test() {
     camera cam;
     cam.aspect_ratio = 16.0 / 9.0;
     cam.image_height = 400;
-    cam.pixel_samples = 100;
+    cam.samples_per_pixel = 100;
     cam.max_depth = 16;
 
     cam.vfov = 20;
@@ -212,7 +212,7 @@ void light_test_2() {
     camera cam;
     cam.aspect_ratio = 1.0;
     cam.image_height = 600;
-    cam.pixel_samples = 100;
+    cam.samples_per_pixel = 100;
     cam.max_depth = 20;
 
     cam.vfov = 40;
@@ -241,8 +241,8 @@ int main() {
     //math_test();
     //spheres();
     //quads();
-    //light_test();
+    light_test();
     //light_test_2();
-    cornell_box();
+    //cornell_box();
     return 0;
 }

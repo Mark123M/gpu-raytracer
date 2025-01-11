@@ -32,8 +32,11 @@ inline std::string time_stamp(const std::string& fmt = "%F__%H-%M-%S") {
 class camera {
     int image_width;
     point3 pixel_center00;
+    point3 viewport_top_left;
     vec3 pixel_x;
     vec3 pixel_y;
+    vec3 strata_x;
+    vec3 strata_y;
     vec3 x, y, z; // Local transform of the camera
 
 	void initialize() {
@@ -55,8 +58,14 @@ class camera {
         pixel_x = viewport_x / image_width;
         pixel_y = viewport_y / image_height;
 
-        point3 viewport_top_left = origin - focal_length * z - viewport_x / 2 - viewport_y / 2;
+        viewport_top_left = origin - focal_length * z - viewport_x / 2 - viewport_y / 2;
         pixel_center00 = viewport_top_left + (pixel_x + pixel_y) / 2;
+
+        // Adjust spp to be perfect square
+        samples_per_strata_side = std::ceilf(std::sqrt(samples_per_pixel));
+        samples_per_pixel = samples_per_strata_side * samples_per_strata_side;
+        strata_x = pixel_x / samples_per_strata_side;
+        strata_y = pixel_y / samples_per_strata_side;
 
         std::clog << "image width: " << image_width << " image height: " << image_height << " viewport width: " << viewport_width << " viewport height: " << viewport_height << std::endl;
         std::clog << "viewport top left: " << viewport_top_left << " pixel_center00: " << pixel_center00 << " pixel size: " << pixel_x << " " << pixel_y << std::endl;
@@ -66,9 +75,10 @@ class camera {
         } */
 	}
 	
-    ray get_ray(int i, int j) const {
-        vec3 offset{ randf() - 0.5f, randf() - 0.5f, 0 }; // Random point from center of unit square -0.5 <= x, y < 0.5
-        point3 sample = pixel_center00 + ((i + offset.y) * pixel_y) + ((j + offset.x) * pixel_x);
+    ray get_ray(int py, int px, int sy, int sx) const {
+        //vec3 offset{ randf() - 0.5f, randf() - 0.5f, 0 }; // Random point from center of unit square -0.5 <= x, y < 0.5
+        vec3 offset = (sy + randf()) * strata_y + (sx + randf()) * strata_x;
+        point3 sample = viewport_top_left + py * pixel_y + px * pixel_x + offset;
         return ray{ origin, sample - origin };
     }
     
@@ -95,7 +105,7 @@ class camera {
         spectrum f = mat->f(wo, wi, res.m) * dot(wi, res.normal);
         float p_l = p_light * ls.pdf;
 
-        if (sampled_light->lig->is_delta()) {
+        if (sampled_light != nullptr && sampled_light->lig->is_delta()) {
             return ls.L * f / p_l;
         } else {
             float p_b = mat->pdf(wo, wi, res.m);
@@ -141,7 +151,6 @@ class camera {
                 break;
             }
 
-            // TODO: direct illumination sampling
             if (mat != nullptr) {
                 color Ld = sample_ld(r, res, lights);
                 L += beta * Ld;
@@ -151,7 +160,7 @@ class camera {
             bsdf_sample bs;
 
             if (mat == nullptr || !mat->sample_f(wo, randf(), point2{ randf(), randf() }, res.m, bs)) {
-                break; // Maybe continue instead?
+                break;
             }
 
             beta *= (bs.f * dot(bs.wi, res.normal)) / bs.pdf;
@@ -159,6 +168,7 @@ class camera {
             prev_res = res;
             r = ray{res.p, bs.wi};
 
+            // Russian roulette termination
             float beta_max = std::max(beta.x, std::max(beta.y, beta.z));
             if (beta_max <= 1 && depth > 1) {
                 float q = std::max(0.0f, 1 - beta_max);
@@ -174,7 +184,8 @@ class camera {
 public:
     float aspect_ratio = 1.0;
     int image_height = 100;
-    int pixel_samples = 10; // # of random samples for pixel (can be parallel reduced)
+    int samples_per_pixel = 16; // # of random samples for pixel
+    int samples_per_strata_side = 4;
     int max_depth = 10; // Max # of ray bounces per ray
 
     float vfov = 90; // Vertical fov in degrees
@@ -190,16 +201,20 @@ public:
         clock_t t0 = clock();
         file << "P3\n" << image_width << " " << image_height << "\n255\n";
 
-        for (int i = 0; i < image_height; i++) {
-            std::clog << "\rScanlines remaining: " << (image_height - i) << "     " << std::flush;
-            for (int j = 0; j < image_width; j++) {
+        for (int py = 0; py < image_height; py++) {
+            std::clog << "\rScanlines remaining: " << (image_height - py) << "     " << std::flush;
+            for (int px = 0; px < image_width; px++) {
                 color pixel_col(0, 0, 0);
-                // Maybe sample only when near the edge?
-                for (int s = 0; s < pixel_samples; s++) {
-                    ray r = get_ray(i, j);
-                    pixel_col += ray_color(r, world, lights);
+
+                for (int sy = 0; sy < samples_per_strata_side; sy++) {
+                    for (int sx = 0; sx < samples_per_strata_side; sx++) {
+                        sampler.dimension = 0; // Reset sampler dimension for new ray
+                        ray r = get_ray(py, px, sy, sx);
+                        pixel_col += ray_color(r, world, lights);
+                    }
                 }
-                write_color(file, pixel_col / pixel_samples);
+
+                write_color(file, pixel_col / samples_per_pixel);
             }
         }
         /*ray test = get_ray(500, 170);
@@ -214,7 +229,7 @@ public:
         std::ofstream metadata{ "renders/render_" + time_stamp() + "_" + duration_string + "s.metadata.txt", std::ios::app };
         metadata << "time elapsed: " << duration << " ms/" << duration / 1000.0 << " s/" << duration / 60000.0 << " m" << std::endl;
         metadata << "width: " << image_width << " height: " << image_height << "  " << std::endl;
-        metadata << "samples: " << pixel_samples << " max depth: " << max_depth << std::endl;
+        metadata << "samples: " << samples_per_pixel << " max depth: " << max_depth << std::endl;
 
         file.close();
         metadata.close();
