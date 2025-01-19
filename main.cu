@@ -235,13 +235,17 @@ void math_test() {
     std::cout << t1.local_to_world(v) << std::endl;
     std::cout << t1.world_to_local(t1.local_to_world(v)) << std::endl;
     std::cout << t1 << std::endl;
+
+    for (int i = 1; i <= 20; i++) {
+        std::cout << rad_inv(i, 2) << " " << rad_inv(i, 3) << std::endl;
+    }
 }
 
 int main() {
-    //math_test();
+    math_test();
     //spheres();
     //quads();
-    light_test();
+    //light_test();
     //light_test_2();
     //cornell_box();
     return 0;

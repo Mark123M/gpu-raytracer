@@ -4,7 +4,6 @@
 #include <cmath>
 #include <iostream>
 #include <cassert>
-#include "util.h"
 
 class vec2;
 inline vec2 operator*(float k, const vec2& v);
