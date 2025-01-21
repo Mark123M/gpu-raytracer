@@ -3,7 +3,6 @@
 
 #include <limits>
 #include <random>
-#include "halton_sampler.h"
 
 // Constants
 constexpr float infinity = std::numeric_limits<float>::infinity();
@@ -19,6 +18,7 @@ inline float deg2rad(float deg) {
 }
 
 static std::random_device                  rand_dev;
+static auto                                rng = std::default_random_engine(rand_dev());
 static std::mt19937                        generator(rand_dev());
 static std::uniform_real_distribution<float> distribution(0.0, 1.0);
 
@@ -31,21 +31,6 @@ inline float randf(float min, float max) {
 inline int randi(int min, int max) {
 	return (int)randf(min, max);
 }
-
-static halton_sampler sampler;
-
-inline float randf_h() {
-	return sampler.randf_h();
-}
-
-inline float rad_inv(int i, int base) {
-	return sampler.rad_inv(i, base);
-}
-
-inline point2 rand2f_h() {
-	return sampler.rand2f_h();
-}
-
 
 inline float power_heuristic(int ni, float pi, int nj, float pj) {
 	float i = ni * pi;

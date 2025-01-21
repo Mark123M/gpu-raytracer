@@ -208,7 +208,7 @@ public:
 
                 for (int sy = 0; sy < samples_per_strata_side; sy++) {
                     for (int sx = 0; sx < samples_per_strata_side; sx++) {
-                        sampler.dimension = 0; // Reset sampler dimension for new ray
+                        //sampler.dimension = 0; // Reset sampler dimension for new ray
                         ray r = get_ray(py, px, sy, sx);
                         pixel_col += ray_color(r, world, lights);
                     }

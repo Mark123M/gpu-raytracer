@@ -16,6 +16,7 @@
 #include "camera.h"
 #include "bvh.h"
 #include "math/transform.h"
+#include "math/halton_sampler.h"
 
 __global__ void hello() {
     printf("Hello from block: %u, thread: %u\n", blockIdx.x, threadIdx.x);
@@ -236,8 +237,9 @@ void math_test() {
     std::cout << t1.world_to_local(t1.local_to_world(v)) << std::endl;
     std::cout << t1 << std::endl;
 
+    halton_sampler::init();
     for (int i = 1; i <= 20; i++) {
-        std::cout << rad_inv(i, 2) << " " << rad_inv(i, 3) << std::endl;
+        std::cout << halton_sampler::rad_inv(i, 0) << " " << halton_sampler::rad_inv(i, 1) << std::endl;
     }
 }
 
