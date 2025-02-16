@@ -18,6 +18,7 @@ inline float deg2rad(float deg) {
 }
 
 static std::random_device                  rand_dev;
+static auto                                rng = std::default_random_engine(rand_dev());
 static std::mt19937                        generator(rand_dev());
 static std::uniform_real_distribution<float> distribution(0.0, 1.0);
 
