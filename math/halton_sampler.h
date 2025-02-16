@@ -56,6 +56,23 @@ namespace halton_sampler {
 		return reversed * inv_base_exp;
 	}
 
+	float scrambled_rad_inv(int i, int base_idx) {
+		float base = primes[base_idx];
+		float inv_base = 1 / base;
+		float inv_base_exp = 1;
+		int reversed = 0;
+
+		std::vector<std::vector<int>>& perm_digit = permutations[base_idx];
+		for (int idx = 0; idx < perm_digit.size(); idx++) {
+			int next = i / base;
+			int digit = i - next * base;
+			reversed = reversed * base + perm_digit[idx][digit];
+			inv_base_exp *= inv_base;
+			i = next;
+		}
+		return reversed * inv_base_exp;
+	}
+
 	float inv_rad_inv(int inverse, int num_digits, int base) {
 		int index = 0;
 		for (int i = 0; i < num_digits; i++) {
